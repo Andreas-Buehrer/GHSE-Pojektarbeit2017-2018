@@ -14,8 +14,3 @@ Projektprüfung 2017-2018
 * Nur vollständiger Code
 * Code kommentieren
 * Nicht vollständiger code muss gekennzeichnet werden.
-
-### Wen muss ich kontaktieren? ###
-
-* Deine Oma
-* Oder Miles, das ist gleichzustellen.
