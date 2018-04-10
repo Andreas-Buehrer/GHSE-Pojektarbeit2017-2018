@@ -35,7 +35,7 @@ class TCPServer {
       
      
     }
-    System.out.println("socket connection going to be closed");    
+    System.out.println("socket connection going to be closed");    ///Test
     connectionSocket.close();
   }
 }
