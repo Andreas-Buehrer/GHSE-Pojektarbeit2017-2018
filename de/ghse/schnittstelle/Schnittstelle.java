@@ -1,3 +1,4 @@
+package de.ghse.schnittstelle;
 
 public class Schnittstelle {
 
