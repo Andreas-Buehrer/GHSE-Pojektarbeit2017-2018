@@ -1,6 +1,6 @@
 package de.ghse.oberflaeche;
 
-import de.ghse.steuerung.Processing;
+import de.ghse.steuerung.Steuerung;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,12 +14,13 @@ import javax.swing.*;
  class Gui_noch_noch_ohne_vorlaufenden_Zahlen extends JFrame implements ActionListener {
 	 final int LEDS = 64; //Anzahl der LEDS
 	 int layer = 0,countm,countn,button;
-
+	 
 	 private JButton[] buttons;
 	 private JTextField display;
 	 private JButton output;
 	 private boolean[] geklickt = new boolean[LEDS];
 	 private boolean[] matrix = new boolean[512];
+	 Steuerung obj = new Steuerung();
 	 Boolean an_aus;
 public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) { 
 	super(title);
@@ -36,7 +37,7 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
     buttonPanel.setLayout( new GridLayout(9,8,15,15));
     for (int i = 0; i < buttons.length; i++)
     {
-        String LED = String.valueOf(i);
+        String LED = String.valueOf(i+1);  //+1 Damit die Buttons von 1-64 gezählt werden
         JButton button = new JButton(LED);
         button.setBackground(new Color(255,255,255));
         button.addActionListener( this );
@@ -55,9 +56,9 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
   } // end of public Main2
 
 public static void main(String[] args) {
-	Processing obj = new Processing();
+	
 	UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
-    new Gui_noch_noch_ohne_vorlaufenden_Zahlen("Erste versuche @ Dennis");
+    new Gui_noch_noch_ohne_vorlaufenden_Zahlen("LED Cube Programmer Alpha v1");
   } 
   
  
@@ -65,7 +66,7 @@ public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden w
 {     JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
 	      if (source.getActionCommand()== "Weiter") {
 	    	  Matrix();
-	    
+	    	  
 	      }else {
 	    	  source.setBackground(new Color(2,2,52));
 	    	  int zahl = Integer.parseInt((source.getActionCommand()));
@@ -73,11 +74,12 @@ public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden w
 	          geklickt[zahl] = true;  
 	          display.replaceSelection(" | " + source.getActionCommand());
 	          an_aus=true;
-	          Processing.knopfGedrueckt(button, an_aus);
+	          //obj.knopfGedrueckt(button, an_aus); 			//Gibt Knopfdaten weiter
 	      }else {
 	    	  geklickt[zahl] = false;
 	    	  source.setBackground(new Color(255,255,255));
 	      }
+	    	  System.out.println("Zahl"+zahl);
 	    }
 	  }
 
