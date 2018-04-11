@@ -1,3 +1,4 @@
+package Schnittstelle;
 
 public class Schnittstelle {
 
