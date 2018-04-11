@@ -147,7 +147,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 				String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 60fps	Beschreibung: Dieses Programm stellt einen größer werdenden Kreis dar";
 				String data2 = "1100110010101010";
 				fw.write(info2);
-				fw.write(data2);
+				fw.write("\n" + data2);
 				fw.close();
 				
 			} catch ( IOException error2) {
