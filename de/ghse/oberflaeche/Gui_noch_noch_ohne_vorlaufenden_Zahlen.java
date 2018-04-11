@@ -147,10 +147,11 @@ void EbeneUpdate() { //Methode die die Buttons updated
 		
 		if(matrix[i+CurrentOffset])	// Findet den Status der Knöpfe heraus
 		{
-			
+			geklickt[i]=true;
 		buttons[i].setBackground(new Color(2,2,52)); // Setzt den Button entsprechend
 		}else
 		{
+			geklickt[i]=false;
 			
 		buttons[i].setBackground(new Color(255,255,255));// Setzt den Button entsprechend
 		}
