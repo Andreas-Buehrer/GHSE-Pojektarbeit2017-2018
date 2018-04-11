@@ -17,19 +17,31 @@ import javax.swing.*;
 	 
 	 private JButton[] buttons;
 	 private JTextField display;
+	 private JTextField CurrentEbenetext;
 	 private JButton output;
+	 private JButton ebeneup;
+	 private JButton ebenedown;
 	 private boolean[] geklickt = new boolean[LEDS];
-	 private boolean[] matrix = new boolean[512];
+	 private boolean[] matrix = new boolean[513];
+	 private int CurrentEbene=0;
 	 Steuerung obj = new Steuerung();
 	 Boolean an_aus;
+	 
 public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) { 
 	super(title);
+	
+	for (int matrixsetup = 0; matrixsetup < 513; matrixsetup++) {// Setting up the the save array
+		matrix[matrixsetup]=false;
+		
+	}
+	
+	
 	display = new JTextField(": Geklickt");
     display.setEditable(false);
     display.setHorizontalAlignment(JTextField.RIGHT);
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-    int frameWidth = 700; 
-    int frameHeight = 700;
+    int frameWidth = 1000; 
+    int frameHeight = 1000;
     setSize(frameWidth, frameHeight);
     setResizable(false);
     buttons = new JButton[LEDS];
@@ -51,6 +63,25 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
     output.setBackground(new Color(255,0,255));
     getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
     getContentPane().add(buttonPanel);
+    
+    ebeneup = new JButton("UP");
+    buttonPanel.add(ebeneup);
+    ebeneup.addActionListener(this);
+    ebeneup.setBackground(new Color(255,0,255));
+    getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
+    getContentPane().add(buttonPanel);
+    
+    ebenedown = new JButton("DOWN");
+    buttonPanel.add(ebenedown);
+    ebenedown.addActionListener(this);
+    ebenedown.setBackground(new Color(255,0,255));
+    getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
+    getContentPane().add(buttonPanel);
+    
+    CurrentEbenetext= new JTextField("Ebene = "+CurrentEbene+1);
+    
+    buttonPanel.add(CurrentEbenetext);
+    
     setResizable( false );
     setVisible(true);
   } // end of public Main2
@@ -63,13 +94,30 @@ public static void main(String[] args) {
   
  
 public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden welcher button gedr�ckt wurde. jeder Button Teilt sich einen ActionListener
-{     JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
+{   int zahl=0;  
+	JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
 	      if (source.getActionCommand()== "Weiter") {
-	    	  Matrix();
+	    	
+	    	
 	    	  
+	    	  
+	      }else if (source.getActionCommand()=="UP") {//UP Knopf
+	    	  if(CurrentEbene<7)
+	    		  {
+	    		  CurrentEbene++;
+	    		  EbeneUpdate();
+	    		  }
+	      }else if (source.getActionCommand()=="DOWN") {//DOWN Knopf
+	    	  if(CurrentEbene>0)
+	    	  {
+	    	  CurrentEbene--;
+	    	  EbeneUpdate();
+	    	  }
 	      }else {
+			
+		
 	    	  source.setBackground(new Color(2,2,52));
-	    	  int zahl = Integer.parseInt((source.getActionCommand()));
+	    	  zahl = Integer.parseInt((source.getActionCommand()))-1;
 	    	  if (!geklickt[zahl]) {
 	          geklickt[zahl] = true;  
 	          display.replaceSelection(" | " + source.getActionCommand());
@@ -78,12 +126,42 @@ public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden w
 	      }else {
 	    	  geklickt[zahl] = false;
 	    	  source.setBackground(new Color(255,255,255));
-	      }
-	    	  System.out.println("Zahl"+zahl);
+	      }	
+	    	 
+	    	  
 	    }
+	      ButtonState(geklickt[zahl],zahl);
+	    
 	  }
 
-void Matrix() {
-
+void ButtonState(boolean state,int button_nr) { // Updated Button State Array
+	int CurrentOffset=(CurrentEbene)*64;
+	
+	matrix[button_nr+CurrentOffset]=state;
+	
 	}
+void EbeneUpdate() { //Methode die die Buttons updated
+	CurrentEbenetext.setText("Ebene = "+Integer.toString(CurrentEbene+1));//Display der derzeitigen Ebene
+	int CurrentOffset=(CurrentEbene)*64;//Button Offset
+	for (int i = 0; i <64; i++) {
+		
+		if(matrix[i+CurrentOffset])	// Findet den Status der Knöpfe heraus
+		{
+			
+		buttons[i].setBackground(new Color(2,2,52)); // Setzt den Button entsprechend
+		}else
+		{
+			
+		buttons[i].setBackground(new Color(255,255,255));// Setzt den Button entsprechend
+		}
+				
+				
+	}
+	
+	
+		
+}
+void Matrix() {
+	
+}
 }
