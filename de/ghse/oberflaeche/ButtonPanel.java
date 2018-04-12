@@ -11,7 +11,7 @@ import javax.swing.*;
 /**
   Der erste Code von Dennis, er soll ein Array f�r jedes Layer erzeugen und dann in ein Array schreiben. So wird das mit jedem layer gemacht.
   */
- class Gui_noch_noch_ohne_vorlaufenden_Zahlen extends JFrame implements ActionListener {
+ class ButtonPanel extends JFrame implements ActionListener {
 	 final int LEDS = 64; //Anzahl der LEDS
 	 int layer = 0,countm,countn,button;
 	 
@@ -27,8 +27,10 @@ import javax.swing.*;
 	 Steuerung obj = new Steuerung();
 	 Boolean an_aus;
 	 
-public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) { 
-	super(title);
+	
+  public ButtonPanel(String title) { 
+ 
+	//super(title);
 	
 	for (int matrixsetup = 0; matrixsetup < 513; matrixsetup++) {// Setting up the the save array
 		matrix[matrixsetup]=false;
@@ -36,14 +38,21 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
 	}
 	
 	
+	
+	
 	display = new JTextField(": Geklickt");
-    display.setEditable(false);
+	display.setEditable(false);
     display.setHorizontalAlignment(JTextField.RIGHT);
+    
+	
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    
     int frameWidth = 1000; 
     int frameHeight = 1000;
+    
     setSize(frameWidth, frameHeight);
     setResizable(false);
+    
     buttons = new JButton[LEDS];
     JPanel buttonPanel = new JPanel();
     buttonPanel.setLayout( new GridLayout(9,8,15,15));
@@ -53,23 +62,23 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
         JButton button = new JButton(LED);
         button.setBackground(new Color(255,255,255));
         button.addActionListener( this );
-        button.setMnemonic( LED.charAt(0) );
+        //button.setMnemonic( LED.charAt(0) );
         buttons[i] = button;
-        buttonPanel.add( button );
+        buttonPanel.add( buttons[i] );
     }
     output = new JButton("Weiter");
     buttonPanel.add(output);
     output.addActionListener(this);
     output.setBackground(new Color(255,0,255));
     getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
-    getContentPane().add(buttonPanel);
+    //getContentPane().add(buttonPanel);
     
     ebeneup = new JButton("UP");
     buttonPanel.add(ebeneup);
     ebeneup.addActionListener(this);
     ebeneup.setBackground(new Color(255,0,255));
     getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
-    getContentPane().add(buttonPanel);
+    //getContentPane().add(buttonPanel);
     
     ebenedown = new JButton("DOWN");
     buttonPanel.add(ebenedown);
@@ -78,9 +87,11 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
     getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
     getContentPane().add(buttonPanel);
     int displayEbene=CurrentEbene+1;
-    CurrentEbenetext= new JTextField("Ebene = "+displayEbene);
     
+    CurrentEbenetext= new JTextField("Ebene = "+displayEbene);
     buttonPanel.add(CurrentEbenetext);
+
+    UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
     
     setResizable( false );
     setVisible(true);
@@ -88,13 +99,16 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
 
 public static void main(String[] args) {
 	
-	UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
-    new Gui_noch_noch_ohne_vorlaufenden_Zahlen("LED Cube Programmer Alpha v1");
+	
+    new ButtonPanel("LED Cube Programmer Alpha v1");
+    
   } 
   
  
 public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden welcher button gedr�ckt wurde. jeder Button Teilt sich einen ActionListener
-{   int zahl=0;  
+{   
+int zahl=0;  
+	
 	JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
 	      if (source.getActionCommand()== "Weiter") {
 	    	
@@ -130,8 +144,7 @@ public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden w
 	    	 
 	    	  
 	    }
-	      ButtonState(geklickt[zahl],zahl);
-	    
+	      ButtonState(geklickt[zahl],zahl);  
 	  }
 
 void ButtonState(boolean state,int button_nr) { // Updated Button State Array
@@ -141,8 +154,10 @@ void ButtonState(boolean state,int button_nr) { // Updated Button State Array
 	
 	}
 void EbeneUpdate() { //Methode die die Buttons updated
+	
 	CurrentEbenetext.setText("Ebene = "+Integer.toString(CurrentEbene+1));//Display der derzeitigen Ebene
 	int CurrentOffset=(CurrentEbene)*64;//Button Offset
+	
 	for (int i = 0; i <64; i++) {
 		
 		if(matrix[i+CurrentOffset])	// Findet den Status der Knöpfe heraus
