@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -18,9 +19,12 @@ import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
+import java.awt.Color;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -30,7 +34,7 @@ import jdk.management.resource.internal.inst.FileOutputStreamRMHooks;
 import javax.swing.JLabel;
 
 
-public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener{
+public class GUI extends JFrame implements MenuListener, ActionListener{
 
 	private JFrame frame;
 	private File file;
@@ -91,13 +95,26 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		File.add(Exit);
 		Exit.addActionListener(this);
 		
-		
+		PaintPanel aniPanel = new PaintPanel();	// benötigt zum malen mit paintComponent graphics g
+		frame.add(aniPanel);
+				
 	}
 	
 	
+	public class PaintPanel extends JPanel{
+	    public void paintComponent(Graphics g){
+	    	
+	    	g.setColor(Color.RED);
+	    	g.fillOval(100, 100, 100, 100);
+	    	g.setColor(Color.black);
+	    	g.drawString("lol", 145, 150);
+	   
+	    }
+	  }
+	
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e) {	// ein button oder ähnliches wurde angeklickt!
 		
 		JFileChooser chooser = new JFileChooser("C:\\Users\\Miles\\Documents");
 		String quelle = e.getActionCommand();
@@ -158,13 +175,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	}
 	
 	
-	
-	
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void menuCanceled(MenuEvent e) {
