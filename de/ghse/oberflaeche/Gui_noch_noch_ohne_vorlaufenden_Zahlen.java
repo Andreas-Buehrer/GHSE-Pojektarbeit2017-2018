@@ -77,8 +77,8 @@ public Gui_noch_noch_ohne_vorlaufenden_Zahlen(String title) {
     ebenedown.setBackground(new Color(255,0,255));
     getContentPane().add(display, BorderLayout.NORTH); // Erzeugt das Ausgabefeld im fenster
     getContentPane().add(buttonPanel);
-    
-    CurrentEbenetext= new JTextField("Ebene = "+CurrentEbene+1);
+    int displayEbene=CurrentEbene+1;
+    CurrentEbenetext= new JTextField("Ebene = "+displayEbene);
     
     buttonPanel.add(CurrentEbenetext);
     
