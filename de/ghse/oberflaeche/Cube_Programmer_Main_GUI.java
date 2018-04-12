@@ -89,7 +89,7 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 		initialize();
 		
 		
-	}
+	}//lol
 
 	/**
 	 * Initialize the contents of the frame.
