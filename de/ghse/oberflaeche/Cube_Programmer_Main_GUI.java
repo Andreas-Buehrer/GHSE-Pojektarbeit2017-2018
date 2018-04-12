@@ -3,6 +3,7 @@ package de.ghse.oberflaeche;
 
 
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -180,12 +181,22 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 
 	    UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
 	    
-	    frame.getContentPane().add(buttonPanel);
+	    frame.getContentPane().add(buttonPanel,BorderLayout.SOUTH);
 	    //Button Panel Setup zu Ende
+	    PaintPanel aniPanel = new PaintPanel();    // benötigt zum malen mit paintComponent graphics g
+	    frame.add(aniPanel);
 		
 	}
 	
-	
+	public class PaintPanel extends JPanel{
+
+        public void paintComponent(Graphics g){
+
+            g.setColor(Color.red);
+            g.fillOval(150, 150, 200, 200);
+
+        }
+      }
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
