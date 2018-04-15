@@ -44,7 +44,7 @@ import jdk.management.resource.internal.inst.FileOutputStreamRMHooks;
 import javax.swing.JLabel;
 
 
-public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, ActionListener, ItemListener{
+public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener{
 
 	final int LEDS = 64; //Anzahl der LEDS
 	int layer = 0,countm,countn,button;
@@ -74,7 +74,7 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Cube_Programmer_Main_GUI window = new Cube_Programmer_Main_GUI();
+					GUI window = new GUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -86,7 +86,7 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 	/**
 	 * Create the application.
 	 */
-	public Cube_Programmer_Main_GUI() {
+	public GUI() {
 		initialize();
 		
 		
@@ -103,11 +103,11 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 		frame = new JFrame();
 		frame.setSize(frameWidth,frameHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.getContentPane().setLayout(new BorderLayout());
 		
 		
 		JLabel label = new JLabel("");
-		frame.getContentPane().add(label, BorderLayout.CENTER);
+		frame.getContentPane().add(label, BorderLayout.NORTH);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -133,13 +133,16 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 			matrix[matrixsetup]=false;
 			
 		}
-	    	    
+	    JPanel gUIPanel = new JPanel();
+	    gUIPanel.setPreferredSize(new Dimension(200,200));
+	    gUIPanel.setLayout(new BorderLayout());
 	    
 	    buttons = new JButton[LEDS];
 	    
 	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setPreferredSize(new Dimension(800,800));
-	    //buttonPanel.setLayout( new GridLayout(9,8,15,15));
+	    buttonPanel.setPreferredSize(new Dimension(50,300));
+	    buttonPanel.setLayout( new GridLayout(9,8,1,1));
+	    
 	    
 	    for (int i = 0; i < buttons.length; i++)
 	    {
@@ -155,20 +158,20 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 	    }
 	    
 	    output = new JButton("Weiter");
-	    buttonPanel.add(output);
+	    gUIPanel.add(output);
 	    output.addActionListener(this);
 	    output.setBackground(new Color(255,0,255));
 	    
 	    
 	    ebeneup = new JButton("UP");
-	    buttonPanel.add(ebeneup);
+	    gUIPanel.add(ebeneup);
 	    ebeneup.addActionListener(this);
 	    ebeneup.setBackground(new Color(255,0,255));
 	   
 	    
 	    
 	    ebenedown = new JButton("DOWN");
-	    buttonPanel.add(ebenedown);
+	    gUIPanel.add(ebenedown);
 	    ebenedown.addActionListener(this);
 	    ebenedown.setBackground(new Color(255,0,255));
 	    
@@ -193,7 +196,7 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
         public void paintComponent(Graphics g){
 
             g.setColor(Color.red);
-            g.fillOval(150, 150, 200, 200);
+            g.fillOval(0, 0, 200, 200);
 
         }
       }
@@ -286,12 +289,11 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 		// TODO Auto-generated method stub
 		
 	}
-	public void ButtonPanelActionListener(String quelle)  //actionlistener um herasuzufinden welcher button gedr�ckt wurde. jeder Button Teilt sich einen ActionListener
-	{   
-		System.out.println(quelle);
+	public void ButtonPanelActionListener(String quelle)  
+	{
 			int zahl=0;  
 		
-		//JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
+		
 	      if (quelle== "Weiter") {
 	    	
 	    	
@@ -336,6 +338,7 @@ public class Cube_Programmer_Main_GUI extends JFrame implements MenuListener, Ac
 		matrix[button_nr+CurrentOffset]=state;
 		
 		}
+	
 	void EbeneUpdate() { //Methode die die Buttons updated
 		
 		CurrentEbenetext.setText("Ebene = "+Integer.toString(CurrentEbene+1));//Display der derzeitigen Ebene
