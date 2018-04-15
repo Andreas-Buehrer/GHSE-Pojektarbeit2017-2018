@@ -35,6 +35,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	private JButton output;
 	private JButton ebeneup;
 	private JButton ebenedown;
+	private JButton reset;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
 	private int CurrentEbene = 0;
@@ -104,10 +105,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		Exit.addActionListener(this);
 
 		// Button Panel
-		for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
-			matrix[matrixsetup] = false;
-			
-		}
+		MatrixInit();
 
 		buttons = new JButton[LEDS];
 
@@ -142,6 +140,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		ebenedown.addActionListener(this);
 		ebenedown.setBackground(new Color(255, 70, 0));
 
+		
 		int displayEbene = CurrentEbene + 1;
 
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
@@ -152,8 +151,12 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		// Button Panel Setup zu Ende
-		PaintPanel aniPanel = new PaintPanel(); // benötigt zum malen mit paintComponent graphics g
-		frame.add(aniPanel);
+		//PaintPanel aniPanel = new PaintPanel(); // benötigt zum malen mit paintComponent graphics g
+		//frame.add(aniPanel);
+		reset= new JButton("Reset");
+		buttonPanel.add(reset);
+		reset.addActionListener(this);
+		reset.setBackground(new Color(255, 70, 0));
 
 	}
 
@@ -174,14 +177,19 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		
 		String quelle = e.getActionCommand();		
 
+		
 		if (quelle == "Exit") {
 			System.exit(0);
 		}
 
+		if(quelle=="Reset")
+		{
+			MatrixInit();
+		}
 		if (quelle == "Open File...") {	
 			matrix=getdatafile.openFileArray(); // Array wird empfangen
-			getdatafile.UpdateData2(matrix);
-			getdatafile.UpdateSavedmatrix(matrix);
+			
+			//getdatafile.UpdateSavedmatrix(matrix);
 			EbeneUpdate();
 			} // end of if
 
@@ -273,12 +281,19 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			if (matrix[i + CurrentOffset]) // Findet den Status der Knöpfe heraus
 			{
 				geklickt[i] = true;
-				buttons[i].setBackground(new Color(2, 2, 52)); // Setzt den Button entsprechend
+				buttons[i].setBackground(new Color(0, 100, 255)); // Setzt den Button entsprechend
 			} else {
 				geklickt[i] = false;
 
 				buttons[i].setBackground(new Color(255, 255, 255));// Setzt den Button entsprechend
 			}
+		}
+	}
+	void MatrixInit()
+	{
+		for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
+			matrix[matrixsetup] = false;
+			
 		}
 	}
 
