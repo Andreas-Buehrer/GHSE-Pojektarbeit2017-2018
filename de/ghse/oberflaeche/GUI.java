@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
@@ -95,15 +97,33 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		menuBar.add(File);
 
 		JMenuItem OpenFile = new JMenuItem("Open File...");
+		ImageIcon openFile = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\openFile.png");
+		OpenFile.setIcon(openFile);
 		File.add(OpenFile);
 		OpenFile.addActionListener(this);
 
 		JMenuItem SaveAs = new JMenuItem("Save as...");
+		ImageIcon saveAs = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\saveAs.png");
+		SaveAs.setIcon(saveAs);
 		File.add(SaveAs);
 		SaveAs.addActionListener(this);
 
 		JMenuItem Exit = new JMenuItem("Exit");
 		File.add(Exit);
+		
+		JMenu Edit = new JMenu("Edit");
+		menuBar.add(Edit);
+		
+		JMenuItem Undo = new JMenuItem("Undo");
+		ImageIcon undo = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\undo.png");
+		Undo.setIcon(undo);
+		Edit.add(Undo);
+		
+		
+		JMenuItem Redo = new JMenuItem("Redo");
+		ImageIcon redo = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\redo.png");
+		Redo.setIcon(redo);
+		Edit.add(Redo);
 		Exit.addActionListener(this);
 
 		
