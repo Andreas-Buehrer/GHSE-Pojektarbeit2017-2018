@@ -204,6 +204,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 						stringBuffer.append("\n");
 					}
 					fileReader.close();
+					reader.close();
 					data = stringBuffer.toString();
 					System.out.println("Info: " + info);
 					System.out.println("Daten: " + data);
