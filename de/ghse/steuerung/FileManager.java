@@ -19,7 +19,11 @@ public boolean[] openFileArray() {//Rückgabewert hinzugefügt boolean[] Array
 	String data, info, line;
 	
 	boolean[] savedmatrix=new boolean[512]; // Boolean Array das zurückgegeben wird von 0 anfangen zu zählen
-	savedmatrix=null;//Zum bugs vermeiden wird array ein deklariert
+	for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {//Um bugs vermeiden wird array erstmal mit 0 beschrieben 
+		savedmatrix[matrixsetup] = false;
+		
+	}
+	
 	int rueckgabewert = chooser.showDialog(null, "Open");
 	
 	if (rueckgabewert == JFileChooser.APPROVE_OPTION) {
