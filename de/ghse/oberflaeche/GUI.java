@@ -193,7 +193,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		if (quelle == "Open File...") {
 
 			
-			getdatafile.openFileArray();
+			matrix=getdatafile.openFileArray(); // Array wird empfangen
 			
 
 			

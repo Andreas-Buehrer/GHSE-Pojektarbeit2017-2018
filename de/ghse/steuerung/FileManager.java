@@ -14,12 +14,12 @@ public class FileManager {
 	JFileChooser chooser = new JFileChooser();
 	private File file;
 	
-public void openFileArray() {
+public boolean[] openFileArray() {//Rückgabewert hinzugefügt boolean[] Array
 	
 	String data, info, line;
 	
-	//private boolean[] savedmatrix=new boolean[513];
-	
+	boolean[] savedmatrix=new boolean[512]; // Boolean Array das zurückgegeben wird von 0 anfangen zu zählen
+	savedmatrix=null;//Zum bugs vermeiden wird array ein deklariert
 	int rueckgabewert = chooser.showDialog(null, "Open");
 	
 	if (rueckgabewert == JFileChooser.APPROVE_OPTION) {
@@ -49,7 +49,7 @@ public void openFileArray() {
 			error1.printStackTrace();// nichts ausgeben
 		}
 	} // end of if
-
+return savedmatrix; // Return of array
 }
 public void SaveArraytoFile(boolean[] matrix) {
 	
