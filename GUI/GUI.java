@@ -44,11 +44,13 @@ import javax.swing.JLabel;
 
 public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener{
 
+	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen größer werdenden Kreis dar";
+	String data2 = "11101010110";
 	final int LEDS = 64; //Anzahl der LEDS
 	int layer = 0,countm,countn,button;
 	private JButton[] buttons;
 	private JTextField display;
-	private JTextField CurrentEbenetext;
+	private JLabel CurrentEbenetext;
 	private JButton output;
 	private JButton ebeneup;
 	private JButton ebenedown;
@@ -163,18 +165,17 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	    ebeneup.addActionListener(this);
 	    ebeneup.setBackground(new Color(255,70,0));
 	   
-	    
-	    
+	    	    
 	    ebenedown = new JButton("DOWN");
 	    buttonPanel.add(ebenedown);
 	    ebenedown.addActionListener(this);
 	    ebenedown.setBackground(new Color(255,70,0));
 	    
 	    
-	    
 	    int displayEbene=CurrentEbene+1;
 	    
-	    CurrentEbenetext= new JTextField("Ebene = "+displayEbene);
+	    CurrentEbenetext= new JLabel("Ebene = "+displayEbene);
+	    
 	    buttonPanel.add(CurrentEbenetext);
 
 	    UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
@@ -244,8 +245,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			File file = chooser.getSelectedFile();
 			try {
 				FileWriter fw = new FileWriter(file);
-				String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen größer werdenden Kreis dar";
-				String data2 = "1100110010101010";
 				fw.write(info2);
 				fw.write(data2);
 				fw.close();
@@ -286,7 +285,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	
 	public void ButtonPanelActionListener(String quelle)  //actionlistener um herasuzufinden welcher button gedr�ckt wurde. jeder Button Teilt sich einen ActionListener
 	{   
-		System.out.println(quelle);
+		//System.out.println(quelle);
 			int zahl=0;  
 		
 		//JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
@@ -332,6 +331,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset=(CurrentEbene)*64;
 		
 		matrix[button_nr+CurrentOffset]=state;
+		System.out.println("LED " +button_nr + " = 1");
 		
 		}
 	
