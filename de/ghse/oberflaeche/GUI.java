@@ -1,5 +1,6 @@
 package de.ghse.oberflaeche;
 
+import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -49,7 +50,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	Boolean an_aus;
 
 	private JFrame frame;
-	private File file;
+	
 
 	/**
 	 * Launch the application.
@@ -177,58 +178,30 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		JFileChooser chooser = new JFileChooser();
+		
+		FileManager getdatafile = new FileManager();
+		
+		
 		String quelle = e.getActionCommand();
-		String data, info, line;
+		
+		
 
 		if (quelle == "Exit") {
 			System.exit(0);
 		}
 
 		if (quelle == "Open File...") {
-
-			int rueckgabewert = chooser.showDialog(null, "Open");
-			if (rueckgabewert == JFileChooser.APPROVE_OPTION) {
-				file = chooser.getSelectedFile();
-
-				try {
-					BufferedReader reader = new BufferedReader(new FileReader(file));
-					FileReader fileReader = new FileReader(file);
-					StringBuffer stringBuffer = new StringBuffer();
-
-					info = reader.readLine(); // erste zeile lesen weil dort info steht
-
-					while ((line = reader.readLine()) != null) { // er macht mit zeile 2 weiter, liest solange bis eine
-																	// leere zeile kommt
-						stringBuffer.append(line);
-						stringBuffer.append("\n");
-					}
-					fileReader.close();
-					data = stringBuffer.toString();
-					System.out.println("Info: " + info);
-					System.out.println("Daten: " + data);
-
-				} catch (Exception error1) {
-					error1.printStackTrace();// nichts ausgeben
-				}
+			
+			getdatafile.openFileArray();
+			
 			} // end of if
 
-		} // end of if
+	
 
 		if (quelle == "Save as...") {
-
-			chooser.setSelectedFile(new File("*.cube"));
-			chooser.showSaveDialog(this);
-			File file = chooser.getSelectedFile();
-			try {
-				FileWriter fw = new FileWriter(file);
-				fw.write(info2);
-				fw.write(data2);
-				fw.close();
-
-			} catch (IOException error2) {
-				// TODO: handle exception
-			}
+			
+			getdatafile.SaveArraytoFile();
+			
 
 		}
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
