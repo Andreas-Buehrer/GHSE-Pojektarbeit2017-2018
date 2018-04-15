@@ -178,8 +178,11 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			System.exit(0);
 		}
 
-		if (quelle == "Open File...") {			
+		if (quelle == "Open File...") {	
 			matrix=getdatafile.openFileArray(); // Array wird empfangen
+			getdatafile.UpdateData2(matrix);
+			getdatafile.UpdateSavedmatrix(matrix);
+			EbeneUpdate();
 			} // end of if
 
 		if (quelle == "Save as...") {			
@@ -237,7 +240,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			
 			
 			zahl=Integer.parseInt(quelle)-1;
-			buttons[zahl].setBackground(new Color(2, 2, 52));
+			buttons[zahl].setBackground(new Color(0, 100, 255));
 
 			if (!geklickt[zahl]) {
 
