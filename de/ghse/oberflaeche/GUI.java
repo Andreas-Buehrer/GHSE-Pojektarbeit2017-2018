@@ -33,7 +33,7 @@ import javax.swing.JLabel;
 
 public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener {
 
-	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen größer werdenden Kreis dar";
+	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen groe�er werdenden Kreis dar";
 	String data2 = "11101010110";
 	final int LEDS = 64; // Anzahl der LEDS
 	int layer = 0, countm, countn, button;
@@ -175,7 +175,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		}
 	}
 
-	@Override
+	
 	public void actionPerformed(ActionEvent e) {
 
 		
@@ -191,16 +191,24 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		}
 
 		if (quelle == "Open File...") {
+
 			
 			getdatafile.openFileArray();
 			
+
+			
+
 			} // end of if
 
 	
 
 		if (quelle == "Save as...") {
+
 			
 			getdatafile.SaveArraytoFile();
+			
+
+
 			
 
 		}
@@ -276,7 +284,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset = (CurrentEbene) * 64;
 
 		matrix[button_nr + CurrentOffset] = state;
-		System.out.println("LED " + button_nr + " = 1");
 
 	}
 
