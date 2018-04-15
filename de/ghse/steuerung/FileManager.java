@@ -51,7 +51,7 @@ public void openFileArray() {
 	} // end of if
 
 }
-public void SaveArraytoFile() {
+public void SaveArraytoFile(boolean[] matrix) {
 	
 	
 	chooser.setSelectedFile(new File(".cube"));

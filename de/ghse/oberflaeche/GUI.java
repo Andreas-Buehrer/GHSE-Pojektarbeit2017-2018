@@ -44,7 +44,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	private JButton ebeneup;
 	private JButton ebenedown;
 	private boolean[] geklickt = new boolean[LEDS];
-	private boolean[] matrix = new boolean[513];
+	private boolean[] matrix = new boolean[512];
 	private int CurrentEbene = 0;
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
@@ -112,9 +112,9 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		Exit.addActionListener(this);
 
 		// Button Panel
-		for (int matrixsetup = 0; matrixsetup < 513; matrixsetup++) {// Setting up the the save array
+		for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
 			matrix[matrixsetup] = false;
-
+			
 		}
 
 		buttons = new JButton[LEDS];
@@ -205,7 +205,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		if (quelle == "Save as...") {
 
 			
-			getdatafile.SaveArraytoFile();
+			getdatafile.SaveArraytoFile(matrix);
 			
 
 
@@ -284,7 +284,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset = (CurrentEbene) * 64;
 
 		matrix[button_nr + CurrentOffset] = state;
-
+		System.out.println(button_nr+CurrentOffset);
 	}
 
 	void EbeneUpdate() { // Methode die die Buttons updated
@@ -293,7 +293,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset = (CurrentEbene) * 64;// Button Offset
 
 		for (int i = 0; i < 64; i++) {
-
+			
 			if (matrix[i + CurrentOffset]) // Findet den Status der Knöpfe heraus
 			{
 				geklickt[i] = true;
