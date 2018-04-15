@@ -56,7 +56,7 @@ public boolean[] openFileArray() {//Rueckgabewert hinzugefuegt boolean[] Array
 				data=scannerdata.next();
 			}
 			//data = stringBuffer.toString();
-			//System.out.println("Info:  " + data);
+			
 			
 			
 	}
@@ -66,7 +66,7 @@ public boolean[] openFileArray() {//Rueckgabewert hinzugefuegt boolean[] Array
 		}
 	
 		
-	for (int i = 1; i < 512; i++) {		
+	for (int i = 0; i < 512; i++) {		
 		
 		int temp=Integer.parseInt(data.substring(i,i+1));
 		
@@ -77,11 +77,7 @@ public boolean[] openFileArray() {//Rueckgabewert hinzugefuegt boolean[] Array
 		} else {							//ansonsten AUS
 			savedmatrix[i]=false;
 		}	
-		if(savedmatrix[i])
-		{
-		System.out.println(savedmatrix[i]);
 		
-		}
 	}	
 	
 return savedmatrix; // Return of array

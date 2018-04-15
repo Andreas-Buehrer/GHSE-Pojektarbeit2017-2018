@@ -185,6 +185,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		if(quelle=="Reset")
 		{
 			MatrixInit();
+			EbeneUpdate();
 		}
 		if (quelle == "Open File...") {	
 			matrix=getdatafile.openFileArray(); // Array wird empfangen
@@ -200,29 +201,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void menuCanceled(MenuEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void menuDeselected(MenuEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void menuSelected(MenuEvent e) {
-		// TODO Auto-generated method stub
-
-	}
+	
 
 	public void ButtonPanelActionListener(String quelle) // actionlistener um herasuzufinden welcher button gedr�ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
