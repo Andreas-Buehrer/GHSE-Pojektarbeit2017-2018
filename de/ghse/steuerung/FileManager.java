@@ -25,6 +25,7 @@ public void openFileArray() {
 	if (rueckgabewert == JFileChooser.APPROVE_OPTION) {
 		file = chooser.getSelectedFile();
 
+		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			FileReader fileReader = new FileReader(file);
