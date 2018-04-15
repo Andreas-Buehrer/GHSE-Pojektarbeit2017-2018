@@ -1,10 +1,6 @@
 package GUI;
 
 
-import java.*;
-import javax.*;
-import jdk.management.resource.internal.inst.FileOutputStreamRMHooks;
-import javafx.stage.FileChooser;
 import de.ghse.steuerung.Steuerung;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -15,14 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -35,10 +27,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JLabel;
 
 
@@ -221,7 +211,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 				
 				info = reader.readLine();	//erste zeile lesen weil dort info steht
 			
-				while ((line = reader.readLine()) != null) {	//er macht mit zeile 2 weiter
+				while ((line = reader.readLine()) != null) {	//er macht mit zeile 2 weiter, liest solange bis eine leere zeile kommt
 					stringBuffer.append(line);
 					stringBuffer.append("\n");
 				}
@@ -254,7 +244,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			}
 			
 		}
-		ButtonPanelActionListener(quelle);
+		ButtonPanelActionListener(quelle);	//übergibt string "quelle" an methode ButtonPanelActionListener
 	}
 	
 	
