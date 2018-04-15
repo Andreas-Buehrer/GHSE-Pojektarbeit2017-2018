@@ -10,13 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,7 +19,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -34,11 +27,10 @@ import javax.swing.JLabel;
 public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener {
 
 	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen groe�er werdenden Kreis dar";
-	String data2 = "11101010110";
+	String data2 = "";
 	final int LEDS = 64; // Anzahl der LEDS
 	int layer = 0, countm, countn, button;
 	private JButton[] buttons;
-	private JTextField display;
 	private JLabel CurrentEbenetext;
 	private JButton output;
 	private JButton ebeneup;
@@ -177,41 +169,23 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 
 	
 	public void actionPerformed(ActionEvent e) {
-
 		
-		FileManager getdatafile = new FileManager();
+		FileManager getdatafile = new FileManager();		
 		
-		
-		String quelle = e.getActionCommand();
-		
-		
+		String quelle = e.getActionCommand();		
 
 		if (quelle == "Exit") {
 			System.exit(0);
 		}
 
-		if (quelle == "Open File...") {
-
-			
+		if (quelle == "Open File...") {			
 			matrix=getdatafile.openFileArray(); // Array wird empfangen
-			
-
-			
-
 			} // end of if
 
-	
-
-		if (quelle == "Save as...") {
-
-			
-			getdatafile.SaveArraytoFile(matrix);
-			
-
-
-			
-
+		if (quelle == "Save as...") {			
+			getdatafile.SaveArraytoFile(matrix);						
 		}
+		
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
@@ -284,7 +258,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset = (CurrentEbene) * 64;
 
 		matrix[button_nr + CurrentOffset] = state;
-		System.out.println(button_nr+CurrentOffset);
 	}
 
 	void EbeneUpdate() { // Methode die die Buttons updated
