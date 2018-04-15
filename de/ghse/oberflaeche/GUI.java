@@ -74,7 +74,9 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-
+		
+		MatrixInit();
+		
 		int frameWidth = 1000;
 		int frameHeight = 1000;
 
@@ -104,8 +106,10 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		File.add(Exit);
 		Exit.addActionListener(this);
 
+		
+		
 		// Button Panel
-		MatrixInit();
+		
 
 		buttons = new JButton[LEDS];
 
@@ -140,36 +144,24 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		ebenedown.addActionListener(this);
 		ebenedown.setBackground(new Color(255, 70, 0));
 
+		reset= new JButton("Reset");
+		buttonPanel.add(reset);
+		reset.addActionListener(this);
+		reset.setBackground(new Color(255, 70, 0));
 		
 		int displayEbene = CurrentEbene + 1;
-
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
-
 		buttonPanel.add(CurrentEbenetext);
 
 		UIManager.put("Button.margin", new Insets(10, 10, 10, 10)); // gibt die Form der Buttons vor
 
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-		// Button Panel Setup zu Ende
-		//PaintPanel aniPanel = new PaintPanel(); // benötigt zum malen mit paintComponent graphics g
-		//frame.add(aniPanel);
-		reset= new JButton("Reset");
-		buttonPanel.add(reset);
-		reset.addActionListener(this);
-		reset.setBackground(new Color(255, 70, 0));
+	
+		
 
 	}
 
-	public class PaintPanel extends JPanel {
-
-		public void paintComponent(Graphics g) {
-
-			g.setColor(Color.red);
-			// g.fillOval(150, 150, 200, 200);
-
-		}
-	}
-
+	
 	
 	public void actionPerformed(ActionEvent e) {
 		
@@ -188,11 +180,10 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			EbeneUpdate();
 		}
 		if (quelle == "Open File...") {	
-			matrix=getdatafile.openFileArray(); // Array wird empfangen
-			
-			//getdatafile.UpdateSavedmatrix(matrix);
+			matrix = getdatafile.openFileArray(); // Array wird empfangen
 			EbeneUpdate();
-			} // end of if
+		
+		} // end of if
 
 		if (quelle == "Save as...") {			
 			getdatafile.SaveArraytoFile(matrix);						
@@ -268,6 +259,8 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			}
 		}
 	}
+	
+	
 	void MatrixInit()
 	{
 		for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
