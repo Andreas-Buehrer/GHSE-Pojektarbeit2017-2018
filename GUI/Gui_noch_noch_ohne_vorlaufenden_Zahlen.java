@@ -4,8 +4,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import javax.swing.*;
+
+import Processing.Processing;
 /**
-  Der erste Code von Dennis, er soll ein Array für jedes Layer erzeugen und dann in ein Array schreiben. So wird das mit jedem layer gemacht.
+  Der erste Code von Dennis, er soll ein Array fï¿½r jedes Layer erzeugen und dann in ein Array schreiben. So wird das mit jedem layer gemacht.
   */
  class Gui_noch_noch_ohne_vorlaufenden_Zahlen extends JFrame implements ActionListener {
 	 final int LEDS = 64; //Anzahl der LEDS
@@ -57,8 +59,8 @@ public static void main(String[] args) {
   } 
   
  
-public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden welcher button gedrückt wurde. jeder Button Teilt sich einen ActionListener
-{     JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgelöst hat
+public void actionPerformed(ActionEvent e)  //actionlistener um herasuzufinden welcher button gedrï¿½ckt wurde. jeder Button Teilt sich einen ActionListener
+{     JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgelï¿½st hat
 	      if (source.getActionCommand()== "Weiter") {
 	    	  Matrix();
 	    

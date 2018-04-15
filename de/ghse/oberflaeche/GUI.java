@@ -1,7 +1,7 @@
 package de.ghse.oberflaeche;
 
 
-
+import de.ghse.steuerung.Steuerung;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -11,46 +11,36 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import de.ghse.steuerung.Steuerung;
-import javafx.stage.FileChooser;
-import jdk.management.resource.internal.inst.FileOutputStreamRMHooks;
 import javax.swing.JLabel;
 
 
 public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener{
 
+	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen größer werdenden Kreis dar";
+	String data2 = "11101010110";
 	final int LEDS = 64; //Anzahl der LEDS
 	int layer = 0,countm,countn,button;
 	private JButton[] buttons;
 	private JTextField display;
-	private JTextField CurrentEbenetext;
+	private JLabel CurrentEbenetext;
 	private JButton output;
 	private JButton ebeneup;
 	private JButton ebenedown;
@@ -103,11 +93,11 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		frame = new JFrame();
 		frame.setSize(frameWidth,frameHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout());
+		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		
 		JLabel label = new JLabel("");
-		frame.getContentPane().add(label, BorderLayout.NORTH);
+		frame.getContentPane().add(label, BorderLayout.CENTER);
 		
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -133,16 +123,13 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			matrix[matrixsetup]=false;
 			
 		}
-	    JPanel gUIPanel = new JPanel();
-	    gUIPanel.setPreferredSize(new Dimension(200,200));
-	    gUIPanel.setLayout(new BorderLayout());
+	    	    
 	    
 	    buttons = new JButton[LEDS];
 	    
 	    JPanel buttonPanel = new JPanel();
-	    buttonPanel.setPreferredSize(new Dimension(50,300));
-	    buttonPanel.setLayout( new GridLayout(9,8,1,1));
-	    
+	    buttonPanel.setPreferredSize(new Dimension(200,900));
+	    buttonPanel.setLayout( new GridLayout(9,8,4,4));
 	    
 	    for (int i = 0; i < buttons.length; i++)
 	    {
@@ -158,28 +145,27 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	    }
 	    
 	    output = new JButton("Weiter");
-	    gUIPanel.add(output);
+	    buttonPanel.add(output);
 	    output.addActionListener(this);
-	    output.setBackground(new Color(255,0,255));
+	    output.setBackground(new Color(255,70,0));
 	    
 	    
 	    ebeneup = new JButton("UP");
-	    gUIPanel.add(ebeneup);
+	    buttonPanel.add(ebeneup);
 	    ebeneup.addActionListener(this);
-	    ebeneup.setBackground(new Color(255,0,255));
+	    ebeneup.setBackground(new Color(255,70,0));
 	   
-	    
-	    
+	    	    
 	    ebenedown = new JButton("DOWN");
-	    gUIPanel.add(ebenedown);
+	    buttonPanel.add(ebenedown);
 	    ebenedown.addActionListener(this);
-	    ebenedown.setBackground(new Color(255,0,255));
-	    
+	    ebenedown.setBackground(new Color(255,70,0));
 	    
 	    
 	    int displayEbene=CurrentEbene+1;
 	    
-	    CurrentEbenetext= new JTextField("Ebene = "+displayEbene);
+	    CurrentEbenetext= new JLabel("Ebene = "+displayEbene);
+	    
 	    buttonPanel.add(CurrentEbenetext);
 
 	    UIManager.put("Button.margin", new Insets(10, 10, 10, 10) ); //gibt die Form der Buttons vor
@@ -196,7 +182,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
         public void paintComponent(Graphics g){
 
             g.setColor(Color.red);
-            g.fillOval(0, 0, 200, 200);
+            //g.fillOval(150, 150, 200, 200);
 
         }
       }
@@ -225,7 +211,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 				
 				info = reader.readLine();	//erste zeile lesen weil dort info steht
 			
-				while ((line = reader.readLine()) != null) {	//er macht mit zeile 2 weiter
+				while ((line = reader.readLine()) != null) {	//er macht mit zeile 2 weiter, liest solange bis eine leere zeile kommt
 					stringBuffer.append(line);
 					stringBuffer.append("\n");
 				}
@@ -249,8 +235,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			File file = chooser.getSelectedFile();
 			try {
 				FileWriter fw = new FileWriter(file);
-				String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen gr��er werdenden Kreis dar";
-				String data2 = "1100110010101010";
 				fw.write(info2);
 				fw.write(data2);
 				fw.close();
@@ -260,9 +244,8 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			}
 			
 		}
-		ButtonPanelActionListener(quelle);
+		ButtonPanelActionListener(quelle);	//übergibt string "quelle" an methode ButtonPanelActionListener
 	}
-	
 	
 	
 	
@@ -289,11 +272,13 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		// TODO Auto-generated method stub
 		
 	}
-	public void ButtonPanelActionListener(String quelle)  
-	{
+	
+	public void ButtonPanelActionListener(String quelle)  //actionlistener um herasuzufinden welcher button gedr�ckt wurde. jeder Button Teilt sich einen ActionListener
+	{   
+		//System.out.println(quelle);
 			int zahl=0;  
 		
-		
+		//JButton source = (JButton)e.getSource(); //findet raus welcher Button den EventListener ausgel�st hat
 	      if (quelle== "Weiter") {
 	    	
 	    	
@@ -336,6 +321,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		int CurrentOffset=(CurrentEbene)*64;
 		
 		matrix[button_nr+CurrentOffset]=state;
+		System.out.println("LED " +button_nr + " = 1");
 		
 		}
 	
@@ -355,15 +341,12 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 				geklickt[i]=false;
 				
 			buttons[i].setBackground(new Color(255,255,255));// Setzt den Button entsprechend
-			}
-					
-					
-		}
-		
-		
-			
+			}						
+		}			
 	}	
-	}
+	
+}
 
 	
+
 
