@@ -70,7 +70,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	public GUI() {
 		initialize();
 
-	}// lol
+	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -126,11 +126,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		Edit.add(Redo);
 		Exit.addActionListener(this);
 
-		
-		
-		// Button Panel
-		
-
 		buttons = new JButton[LEDS];
 
 		JPanel buttonPanel = new JPanel();
@@ -176,37 +171,38 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		UIManager.put("Button.margin", new Insets(10, 10, 10, 10)); // gibt die Form der Buttons vor
 
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-	
-		
-
 	}
 
 	
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		FileManager getdatafile = new FileManager();		
+		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////
+		UndoClass undo = new UndoClass();
+		
 		
 		String quelle = e.getActionCommand();		
-
 		
 		if (quelle == "Exit") {
 			System.exit(0);
 		}
-
-		if(quelle=="Reset")
-		{
-			MatrixInit();
-			EbeneUpdate();
-		}
+		
 		if (quelle == "Open File...") {	
 			matrix = getdatafile.openFileArray(); // Array wird empfangen
-			EbeneUpdate();
-		
-		} // end of if
+			EbeneUpdate();		
+		} 
 
 		if (quelle == "Save as...") {			
 			getdatafile.SaveArraytoFile(matrix);						
+		}
+		
+		if (quelle == "Undo") {
+			undo.Undo(matrix);
+			EbeneUpdate();
+		}
+		if (quelle == "Redo") {
+			
+			EbeneUpdate();
 		}
 		
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
@@ -217,12 +213,14 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	public void ButtonPanelActionListener(String quelle) // actionlistener um herasuzufinden welcher button gedr�ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
 	{
-		// System.out.println(quelle);
+		
 		int zahl = 0;
 
-		// JButton source = (JButton)e.getSource(); //findet raus welcher Button den
-		// EventListener ausgel�st hat
-		if (quelle == "Weiter") {
+		if(quelle=="Reset")
+		{
+			MatrixInit();
+			EbeneUpdate();
+		} else if (quelle == "Weiter") {
 
 		} else if (quelle == "Ebene hoch") {// UP Knopf
 			if (CurrentEbene < 7) {
@@ -241,18 +239,16 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			buttons[zahl].setBackground(new Color(0, 100, 255));
 
 			if (!geklickt[zahl]) {
-
-				geklickt[zahl] = true;
-				// display.replaceSelection(" | " + quelle);
+				geklickt[zahl] = true;				
 				an_aus = true;
-				// obj.knopfGedrueckt(button, an_aus); //Gibt Knopfdaten weiter
+				
 			} else {
 				geklickt[zahl] = false;
 				buttons[zahl].setBackground(new Color(255, 255, 255));
 			}
 
 		}
-		ButtonState(geklickt[zahl], zahl);
+		ButtonState(geklickt[zahl], zahl);	//alle LEDs aktualisieren
 	}
 
 	void ButtonState(boolean state, int button_nr) { // Updated Button State Array
@@ -274,7 +270,6 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 				buttons[i].setBackground(new Color(0, 100, 255)); // Setzt den Button entsprechend
 			} else {
 				geklickt[i] = false;
-
 				buttons[i].setBackground(new Color(255, 255, 255));// Setzt den Button entsprechend
 			}
 		}
