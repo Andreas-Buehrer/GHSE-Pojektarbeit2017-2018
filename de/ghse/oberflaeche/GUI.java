@@ -80,10 +80,7 @@ public class GUI extends JFrame implements ActionListener {
 		frame = new JFrame();
 		frame.setSize(frameWidth, frameHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-
-		JLabel label = new JLabel("");
-		frame.getContentPane().add(label, BorderLayout.CENTER);
+		frame.getContentPane().setLayout(new BorderLayout(0, 0));		
 
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
