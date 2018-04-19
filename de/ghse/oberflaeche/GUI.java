@@ -40,6 +40,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	private JButton reset;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
+	public boolean[] matrixTemp = new boolean[512];
 	private int CurrentEbene = 0;
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
@@ -110,6 +111,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 
 		JMenuItem Exit = new JMenuItem("Exit");
 		File.add(Exit);
+		Exit.addActionListener(this);
 		
 		JMenu Edit = new JMenu("Edit");
 		menuBar.add(Edit);
@@ -118,13 +120,14 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		ImageIcon undo = new ImageIcon("undo.png");
 		Undo.setIcon(undo);
 		Edit.add(Undo);
+		Undo.addActionListener(this);
 		
 		
 		JMenuItem Redo = new JMenuItem("Redo");
 		ImageIcon redo = new ImageIcon("redo.png");
 		Redo.setIcon(redo);
 		Edit.add(Redo);
-		Exit.addActionListener(this);
+		Undo.addActionListener(this);
 
 		buttons = new JButton[LEDS];
 
@@ -177,9 +180,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////
-		UndoClass undo = new UndoClass();
-		
+		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////		
 		
 		String quelle = e.getActionCommand();		
 		
@@ -197,7 +198,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		}
 		
 		if (quelle == "Undo") {
-			undo.Undo(matrix);
+			matrix=undoTempToMatrix();
 			EbeneUpdate();
 		}
 		if (quelle == "Redo") {
@@ -208,7 +209,21 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		ButtonPanelActionListener(quelle); // Ã¼bergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
+	public boolean[] undoMatrixToTemp(boolean matrix[]) {		//überträgt matrix zu matrixTemp
+		
+		for (int i = 0; i <= 511; i++) {			//matrix in neue variable übertragen
+			matrixTemp[i]=matrix[i];
+		}		
+		return matrix;
+	}
 	
+	public boolean[] undoTempToMatrix() {			//überträgt matrix zu matrixTemp
+		
+		for (int i = 0; i <= 511; i++) {			//matrix in neue variable übertragen
+			matrix[i]=matrixTemp[i];
+		}		
+		return matrix;
+	}
 
 	public void ButtonPanelActionListener(String quelle) // actionlistener um herasuzufinden welcher button gedrï¿½ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
@@ -216,12 +231,13 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		
 		int zahl = 0;
 
-		if(quelle=="Reset")
-		{
+		if(quelle=="Reset"){										
+			undoMatrixToTemp(matrix);
 			MatrixInit();
 			EbeneUpdate();
 		} else if (quelle == "Weiter") {
 
+			
 		} else if (quelle == "Ebene hoch") {// UP Knopf
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
