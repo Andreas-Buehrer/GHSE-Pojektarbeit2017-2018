@@ -1,18 +1,12 @@
 package de.ghse.oberflaeche;
 
-import de.ghse.schnittstelle.SimpleDataSending;
 import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
 import java.awt.EventQueue;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.io.IOException;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -24,18 +18,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.JLabel;
 
-public class MainGUI extends JFrame implements MenuListener, ActionListener, ItemListener {
+public class GUI extends JFrame implements ActionListener {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen groe�er werdenden Kreis dar";
-	String data2 = "";
+	
 	final int LEDS = 64; // Anzahl der LEDS
 	int layer = 0, countm, countn, button;
 	private JButton[] buttons;
@@ -46,6 +33,7 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 	private JButton reset;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
+	public boolean[] matrixTemp = new boolean[512];
 	private int CurrentEbene = 0;
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
@@ -57,12 +45,11 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 	 * Launch the application.
 	 */
 
-	public static void main(String[] args) 
-	{
+	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MainGUI window = new MainGUI();
+					GUI window = new GUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -74,10 +61,10 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 	/**
 	 * Create the application.
 	 */
-	public MainGUI() {
+	public GUI() {
 		initialize();
 
-	}// lol
+	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -92,10 +79,7 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 		frame = new JFrame();
 		frame.setSize(frameWidth, frameHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-
-		JLabel label = new JLabel("");
-		frame.getContentPane().add(label, BorderLayout.CENTER);
+		frame.getContentPane().setLayout(new BorderLayout(0, 0));		
 
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -117,6 +101,7 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 
 		JMenuItem Exit = new JMenuItem("Exit");
 		File.add(Exit);
+		Exit.addActionListener(this);
 		
 		JMenu Edit = new JMenu("Edit");
 		menuBar.add(Edit);
@@ -125,18 +110,14 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 		ImageIcon undo = new ImageIcon("undo.png");
 		Undo.setIcon(undo);
 		Edit.add(Undo);
+		Undo.addActionListener(this);
 		
 		
 		JMenuItem Redo = new JMenuItem("Redo");
 		ImageIcon redo = new ImageIcon("redo.png");
 		Redo.setIcon(redo);
 		Edit.add(Redo);
-		Exit.addActionListener(this);
-
-		
-		
-		// Button Panel
-		
+		Undo.addActionListener(this);
 
 		buttons = new JButton[LEDS];
 
@@ -183,60 +164,70 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 		UIManager.put("Button.margin", new Insets(10, 10, 10, 10)); // gibt die Form der Buttons vor
 
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-	
-		
-		
 	}
 
 	
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		FileManager getdatafile = new FileManager();		
+		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////		
 		
 		String quelle = e.getActionCommand();		
-
 		
 		if (quelle == "Exit") {
 			System.exit(0);
 		}
-
-		if(quelle=="Reset")
-		{
-			MatrixInit();
-			EbeneUpdate();
-		}
+		
 		if (quelle == "Open File...") {	
 			matrix = getdatafile.openFileArray(); // Array wird empfangen
-			EbeneUpdate();
-		
-		} // end of if
+			EbeneUpdate();		
+		} 
 
 		if (quelle == "Save as...") {			
 			getdatafile.SaveArraytoFile(matrix);						
 		}
 		
+		if (quelle == "Undo") {
+			matrix=undoTempToMatrix();
+			EbeneUpdate();
+		}
+		if (quelle == "Redo") {
+			
+			EbeneUpdate();
+		}
+		
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
+	public boolean[] undoMatrixToTemp(boolean matrix[]) {		//�bertr�gt matrix zu matrixTemp
+		
+		for (int i = 0; i <= 511; i++) {			//matrix in neue variable �bertragen
+			matrixTemp[i]=matrix[i];
+		}		
+		return matrix;
+	}
 	
+	public boolean[] undoTempToMatrix() {			//�bertr�gt matrix zu matrixTemp
+		
+		for (int i = 0; i <= 511; i++) {			//matrix in neue variable �bertragen
+			matrix[i]=matrixTemp[i];
+		}		
+		return matrix;
+	}
 
 	public void ButtonPanelActionListener(String quelle) // actionlistener um herasuzufinden welcher button gedr�ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
 	{
-		// System.out.println(quelle);
+		
 		int zahl = 0;
 
-		// JButton source = (JButton)e.getSource(); //findet raus welcher Button den
-		// EventListener ausgel�st hat
-		if (quelle == "Weiter") {
-			SimpleDataSending sending=new SimpleDataSending();
-			try {
-				sending.Stringbuilder(matrix);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if(quelle=="Reset"){										
+			undoMatrixToTemp(matrix);
+			MatrixInit();
+			EbeneUpdate();
+		} else if (quelle == "Weiter") {
+
+			
 		} else if (quelle == "Ebene hoch") {// UP Knopf
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
@@ -251,21 +242,19 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 			
 			
 			zahl=Integer.parseInt(quelle)-1;
-			
+			buttons[zahl].setBackground(new Color(0, 100, 255));
 
 			if (!geklickt[zahl]) {
+				geklickt[zahl] = true;				
+				an_aus = true;
 				
-				buttons[zahl].setBackground(new Color(0, 100, 255));
-				geklickt[zahl] = true;
-				
-				// obj.knopfGedrueckt(button, an_aus); //Gibt Knopfdaten weiter
 			} else {
 				geklickt[zahl] = false;
 				buttons[zahl].setBackground(new Color(255, 255, 255));
 			}
 
 		}
-		ButtonState(geklickt[zahl], zahl);
+		ButtonState(geklickt[zahl], zahl);	//alle LEDs aktualisieren
 	}
 
 	void ButtonState(boolean state, int button_nr) { // Updated Button State Array
@@ -277,7 +266,7 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 	void EbeneUpdate() { // Methode die die Buttons updated
 
 		CurrentEbenetext.setText("Ebene = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
-		int CurrentOffset = CurrentEbene * 64;// Button Offset
+		int CurrentOffset = (CurrentEbene) * 64;// Button Offset
 
 		for (int i = 0; i < 64; i++) {
 			
@@ -287,7 +276,6 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 				buttons[i].setBackground(new Color(0, 100, 255)); // Setzt den Button entsprechend
 			} else {
 				geklickt[i] = false;
-
 				buttons[i].setBackground(new Color(255, 255, 255));// Setzt den Button entsprechend
 			}
 		}
@@ -300,30 +288,6 @@ public class MainGUI extends JFrame implements MenuListener, ActionListener, Ite
 			matrix[matrixsetup] = false;
 			
 		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void menuCanceled(MenuEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void menuDeselected(MenuEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void menuSelected(MenuEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
