@@ -1,5 +1,6 @@
 package de.ghse.oberflaeche;
 
+import de.ghse.schnittstelle.SimpleDataSending;
 import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
 import java.awt.EventQueue;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,8 +28,12 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.JLabel;
 
-public class GUI extends JFrame implements MenuListener, ActionListener, ItemListener {
+public class MainGUI extends JFrame implements MenuListener, ActionListener, ItemListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String info2 = "420 x 512 Zahlen	20 Sekunden Laufzeit bei 24fps	Beschreibung: Dieses Programm stellt einen groe�er werdenden Kreis dar";
 	String data2 = "";
 	final int LEDS = 64; // Anzahl der LEDS
@@ -51,11 +57,12 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	 * Launch the application.
 	 */
 
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUI window = new GUI();
+					MainGUI window = new MainGUI();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,7 +74,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	/**
 	 * Create the application.
 	 */
-	public GUI() {
+	public MainGUI() {
 		initialize();
 
 	}// lol
@@ -178,7 +185,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 	
 		
-
+		
 	}
 
 	
@@ -223,7 +230,13 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 		// JButton source = (JButton)e.getSource(); //findet raus welcher Button den
 		// EventListener ausgel�st hat
 		if (quelle == "Weiter") {
-
+			SimpleDataSending sending=new SimpleDataSending();
+			try {
+				sending.Stringbuilder(matrix);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else if (quelle == "Ebene hoch") {// UP Knopf
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
@@ -238,13 +251,13 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			
 			
 			zahl=Integer.parseInt(quelle)-1;
-			buttons[zahl].setBackground(new Color(0, 100, 255));
+			
 
 			if (!geklickt[zahl]) {
-
+				
+				buttons[zahl].setBackground(new Color(0, 100, 255));
 				geklickt[zahl] = true;
-				// display.replaceSelection(" | " + quelle);
-				an_aus = true;
+				
 				// obj.knopfGedrueckt(button, an_aus); //Gibt Knopfdaten weiter
 			} else {
 				geklickt[zahl] = false;
@@ -264,7 +277,7 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 	void EbeneUpdate() { // Methode die die Buttons updated
 
 		CurrentEbenetext.setText("Ebene = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
-		int CurrentOffset = (CurrentEbene) * 64;// Button Offset
+		int CurrentOffset = CurrentEbene * 64;// Button Offset
 
 		for (int i = 0; i < 64; i++) {
 			
@@ -287,6 +300,30 @@ public class GUI extends JFrame implements MenuListener, ActionListener, ItemLis
 			matrix[matrixsetup] = false;
 			
 		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void menuCanceled(MenuEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void menuDeselected(MenuEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void menuSelected(MenuEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
