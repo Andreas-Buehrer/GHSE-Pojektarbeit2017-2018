@@ -3,6 +3,7 @@ package de.ghse.oberflaeche;
 import de.ghse.schnittstelle.SimpleDataSending;
 import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
+import de.ghse.steuerung.Undo;
 import de.ghse.werkzeuge.Stoppuhr;
 
 import java.awt.EventQueue;
@@ -169,6 +170,7 @@ public class GUI extends JFrame implements ActionListener {
 		UIManager.put("Button.margin", new Insets(10, 10, 10, 10)); // gibt die Form der Buttons vor
 
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		
 	}
 
 	
@@ -176,29 +178,25 @@ public class GUI extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		
 		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////		
+		Undo undo = new Undo();
 		
 		String quelle = e.getActionCommand();		
 		
-		if (quelle == "Exit") {
+		switch (quelle) {
+		case "Exit":
 			System.exit(0);
-		}
-		
-		if (quelle == "Open File...") {	
+		case "Open File...":
 			matrix = getdatafile.openFileArray(); // Array wird empfangen
+			EbeneUpdate();
+		case "Save as...":
+			getdatafile.SaveArraytoFile(matrix);
+		case "Undo":
+			matrix=undo.undoTempToMatrix();
+			EbeneUpdate();	
+		case "Redo":
 			EbeneUpdate();		
-		} 
-
-		if (quelle == "Save as...") {			
-			getdatafile.SaveArraytoFile(matrix);						
-		}
-		
-		if (quelle == "Undo") {
-			matrix=undoTempToMatrix();
-			EbeneUpdate();
-		}
-		if (quelle == "Redo") {
-			
-			EbeneUpdate();
+		default:
+			break;
 		}
 		
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
@@ -220,17 +218,35 @@ public class GUI extends JFrame implements ActionListener {
 		return matrix;
 	}
 
-	public void ButtonPanelActionListener(String quelle) // actionlistener um herasuzufinden welcher button gedr�ckt
+	public void ButtonPanelActionListener(String quelle) { // actionlistener um herasuzufinden welcher button gedr�ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
-	{
-		
+		Undo undo = new Undo();								
 		int zahl = 0;
 
-		if(quelle=="Reset"){										
-			undoMatrixToTemp(matrix);
+		 if (quelle.length()<3) {
+								
+				zahl=Integer.parseInt(quelle)-1;
+				buttons[zahl].setBackground(new Color(0, 100, 255));
+
+				if (!geklickt[zahl]) {
+					geklickt[zahl] = true;				
+					an_aus = true;
+					
+				} else {
+					geklickt[zahl] = false;
+					buttons[zahl].setBackground(new Color(255, 255, 255));
+				}
+
+			}
+		
+		switch (quelle) {
+		
+		case "Reset":
+			undo.undoMatrixToTemp(matrix);
 			MatrixInit();
 			EbeneUpdate();
-		} else if (quelle == "Weiter") {
+			break;
+		case "Weiter":
 			SimpleDataSending netsend = new SimpleDataSending();
 			Stoppuhr time=new Stoppuhr();
 			time.StartTimer();
@@ -241,32 +257,23 @@ public class GUI extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 			System.out.println("Gesamte Zeit"+time.StoppTimer()+"ms");
-		} else if (quelle == "Ebene hoch") {// UP Knopf
+			
+		case "Ebene hoch":
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
 				EbeneUpdate();
 			}
-		} else if (quelle == "Ebene runter") {// DOWN Knopf
+			
+		case "Ebene runter":
 			if (CurrentEbene > 0) {
 				CurrentEbene--;
 				EbeneUpdate();
 			}
-		} else if (quelle.length()<3) {
 			
-			
-			zahl=Integer.parseInt(quelle)-1;
-			buttons[zahl].setBackground(new Color(0, 100, 255));
-
-			if (!geklickt[zahl]) {
-				geklickt[zahl] = true;				
-				an_aus = true;
-				
-			} else {
-				geklickt[zahl] = false;
-				buttons[zahl].setBackground(new Color(255, 255, 255));
-			}
-
+		default:
+			break;
 		}
+				
 		ButtonState(geklickt[zahl], zahl);	//alle LEDs aktualisieren
 	}
 
