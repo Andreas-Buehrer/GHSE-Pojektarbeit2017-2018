@@ -31,8 +31,8 @@ import javax.swing.JLabel;
 
 public class GUI extends JFrame implements ActionListener {
 
-	ImageIcon blau = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\BlauerPunkt.png");
-	ImageIcon grau = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\GrauerPunkt.png");	
+	ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
+	ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png");	
 	final int LEDS = 64; // Anzahl der LEDS
 	int layer = 0, countm, countn, button;
 	private JButton[] buttons;
@@ -98,13 +98,13 @@ public class GUI extends JFrame implements ActionListener {
 		menuBar.add(File);
 
 		JMenuItem OpenFile = new JMenuItem("Open File...");
-		ImageIcon openFile = new ImageIcon("openFile.png");
+		ImageIcon openFile = new ImageIcon("pictures/openFile.png");
 		OpenFile.setIcon(openFile);
 		File.add(OpenFile);
 		OpenFile.addActionListener(this);
 
 		JMenuItem SaveAs = new JMenuItem("Save as...");
-		ImageIcon saveAs = new ImageIcon("saveAs.png");
+		ImageIcon saveAs = new ImageIcon("pictures/saveAs.png");
 		SaveAs.setIcon(saveAs);
 		File.add(SaveAs);
 		SaveAs.addActionListener(this);
@@ -117,14 +117,14 @@ public class GUI extends JFrame implements ActionListener {
 		menuBar.add(Edit);
 		
 		JMenuItem Undo = new JMenuItem("Undo");
-		ImageIcon undo = new ImageIcon("undo.png");
+		ImageIcon undo = new ImageIcon("pictures/undo.png");
 		Undo.setIcon(undo);
 		Edit.add(Undo);
 		Undo.addActionListener(this);
 		
 		
 		JMenuItem Redo = new JMenuItem("Redo");
-		ImageIcon redo = new ImageIcon("redo.png");
+		ImageIcon redo = new ImageIcon("pictures/redo.png");
 		Redo.setIcon(redo);
 		Edit.add(Redo);
 		Undo.addActionListener(this);
