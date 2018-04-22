@@ -252,7 +252,7 @@ public class GUI extends JFrame implements ActionListener {
 			Stoppuhr time=new Stoppuhr();
 			time.StartTimer();
 			try {
-				netsend.Stringbuilder(matrix,1000);
+				netsend.Stringbuilder(matrix,1);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
