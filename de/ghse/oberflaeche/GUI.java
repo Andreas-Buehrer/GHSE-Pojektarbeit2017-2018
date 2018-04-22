@@ -5,28 +5,19 @@ import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
 import de.ghse.steuerung.Undo;
 import de.ghse.werkzeuge.Stoppuhr;
-
 import java.awt.EventQueue;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-
-import com.sun.prism.Image;
-
 import javax.swing.JLabel;
 
 public class GUI extends JFrame implements ActionListener {
