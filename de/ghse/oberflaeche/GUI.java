@@ -185,16 +185,26 @@ public class GUI extends JFrame implements ActionListener {
 		switch (quelle) {
 		case "Exit":
 			System.exit(0);
+			break;
+			
 		case "Open File...":
 			matrix = getdatafile.openFileArray(); // Array wird empfangen
 			EbeneUpdate();
+			break;
+			
 		case "Save as...":
 			getdatafile.SaveArraytoFile(matrix);
+			break;
+			
 		case "Undo":
 			matrix=undo.undoTempToMatrix();
-			EbeneUpdate();	
+			EbeneUpdate();
+			break;
+			
 		case "Redo":
-			EbeneUpdate();		
+			EbeneUpdate();
+			break;
+			
 		default:
 			break;
 		}
@@ -202,21 +212,6 @@ public class GUI extends JFrame implements ActionListener {
 		ButtonPanelActionListener(quelle); // übergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
-	public boolean[] undoMatrixToTemp(boolean matrix[]) {		//�bertr�gt matrix zu matrixTemp
-		
-		for (int i = 0; i <= 511; i++) {			//matrix in neue variable �bertragen
-			matrixTemp[i]=matrix[i];
-		}		
-		return matrix;
-	}
-	
-	public boolean[] undoTempToMatrix() {			//�bertr�gt matrix zu matrixTemp
-		
-		for (int i = 0; i <= 511; i++) {			//matrix in neue variable �bertragen
-			matrix[i]=matrixTemp[i];
-		}		
-		return matrix;
-	}
 
 	public void ButtonPanelActionListener(String quelle) { // actionlistener um herasuzufinden welcher button gedr�ckt
 															// wurde. jeder Button Teilt sich einen ActionListener
@@ -257,18 +252,21 @@ public class GUI extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 			System.out.println("Gesamte Zeit"+time.StoppTimer()+"ms");
+			break;
 			
 		case "Ebene hoch":
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
 				EbeneUpdate();
 			}
+			break;
 			
 		case "Ebene runter":
 			if (CurrentEbene > 0) {
 				CurrentEbene--;
 				EbeneUpdate();
 			}
+			break;
 			
 		default:
 			break;
