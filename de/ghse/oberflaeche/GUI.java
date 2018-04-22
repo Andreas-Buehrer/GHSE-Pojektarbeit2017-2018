@@ -83,13 +83,13 @@ public class GUI extends JFrame implements ActionListener {
 		
 		MatrixInit();
 		
-		int frameWidth = 1000;
+		int frameWidth = 1800;
 		int frameHeight = 1000;
 
 		frame = new JFrame();
 		frame.setSize(frameWidth, frameHeight);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));		
+		frame.getContentPane().setLayout(new GridLayout(0, 1, 0, 0));		
 
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -131,16 +131,29 @@ public class GUI extends JFrame implements ActionListener {
 
 		buttons = new JButton[LEDS];
 
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setPreferredSize(new Dimension(200, 900));
+		
+		JPanel panel = new JPanel();							//UNTEN DRUNTER
+		frame.getContentPane().add(panel);
+		panel.setLayout(null);
+				
+		JPanel buttonPanel = new JPanel();						//CUBE
+		buttonPanel.setBounds(0, 0, 900, 900);
 		buttonPanel.setLayout(new GridLayout(9, 8, -1, -1));
+		panel.add(buttonPanel);
+		
 
+		
+		JPanel panel_2 = new JPanel();			//MENUELEISTE
+		panel_2.setBounds(494, 11, 153, 374);
+		panel.add(panel_2);
+		
+				
+		
 		for (int i = 0; i < buttons.length; i++) {
 			String LED = String.valueOf(i + 1); // +1 Damit die Buttons von 1-64 gezählt werden
 			JButton button = new JButton(LED,grau);
 
-			//button.setBackground(new Color(255, 255, 255));
-			
+			//button.setBackground(new Color(255, 255, 255));			
 			
 			button.addActionListener(this);
 			button.setMnemonic(LED.charAt(0));
@@ -152,30 +165,27 @@ public class GUI extends JFrame implements ActionListener {
 		output = new JButton("Weiter");
 		buttonPanel.add(output);
 		output.addActionListener(this);
-		output.setBackground(new Color(255, 70, 0));
+		output.setBackground(Color.gray);
 
 		ebeneup = new JButton("Ebene hoch");
 		buttonPanel.add(ebeneup);
 		ebeneup.addActionListener(this);
-		ebeneup.setBackground(new Color(255, 70, 0));
+		ebeneup.setBackground(Color.gray);
 
 		ebenedown = new JButton("Ebene runter");
 		buttonPanel.add(ebenedown);
 		ebenedown.addActionListener(this);
-		ebenedown.setBackground(new Color(255, 70, 0));
+		ebenedown.setBackground(Color.gray);
 
 		reset= new JButton("Reset");
 		buttonPanel.add(reset);
 		reset.addActionListener(this);
-		reset.setBackground(new Color(255, 70, 0));
+		reset.setBackground(Color.gray);
 		
 		int displayEbene = CurrentEbene + 1;
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
 		buttonPanel.add(CurrentEbenetext);
 
-		UIManager.put("Button.margin", new Insets(10, 10, 10, 10)); // gibt die Form der Buttons vor
-
-		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		
 	}
 
