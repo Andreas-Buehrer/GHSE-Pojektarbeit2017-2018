@@ -1,12 +1,17 @@
 package de.ghse.oberflaeche;
 
+import de.ghse.schnittstelle.SimpleDataSending;
 import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
+import de.ghse.werkzeuge.Stoppuhr;
+
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -226,8 +231,16 @@ public class GUI extends JFrame implements ActionListener {
 			MatrixInit();
 			EbeneUpdate();
 		} else if (quelle == "Weiter") {
-
-			
+			SimpleDataSending netsend = new SimpleDataSending();
+			Stoppuhr time=new Stoppuhr();
+			time.StartTimer();
+			try {
+				netsend.Stringbuilder(matrix,1000);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Gesamte Zeit"+time.StoppTimer()+"ms");
 		} else if (quelle == "Ebene hoch") {// UP Knopf
 			if (CurrentEbene < 7) {
 				CurrentEbene++;
