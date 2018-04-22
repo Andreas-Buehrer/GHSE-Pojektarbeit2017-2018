@@ -24,11 +24,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+
+import com.sun.prism.Image;
+
 import javax.swing.JLabel;
 
 public class GUI extends JFrame implements ActionListener {
 
-	
+	ImageIcon blau = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\BlauerPunkt.png");
+	ImageIcon grau = new ImageIcon("C:\\Users\\Miles\\Desktop\\Java\\Projektarbeit\\GUI\\Icons\\GrauerPunkt.png");	
 	final int LEDS = 64; // Anzahl der LEDS
 	int layer = 0, countm, countn, button;
 	private JButton[] buttons;
@@ -43,8 +47,8 @@ public class GUI extends JFrame implements ActionListener {
 	private int CurrentEbene = 0;
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
-
 	private JFrame frame;
+	
 	
 
 	/**
@@ -129,13 +133,15 @@ public class GUI extends JFrame implements ActionListener {
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setPreferredSize(new Dimension(200, 900));
-		buttonPanel.setLayout(new GridLayout(9, 8, 4, 4));
+		buttonPanel.setLayout(new GridLayout(9, 8, -1, -1));
 
 		for (int i = 0; i < buttons.length; i++) {
 			String LED = String.valueOf(i + 1); // +1 Damit die Buttons von 1-64 gezählt werden
-			JButton button = new JButton(LED);
+			JButton button = new JButton(LED,grau);
 
-			button.setBackground(new Color(255, 255, 255));
+			//button.setBackground(new Color(255, 255, 255));
+			
+			
 			button.addActionListener(this);
 			button.setMnemonic(LED.charAt(0));
 
@@ -221,7 +227,7 @@ public class GUI extends JFrame implements ActionListener {
 		 if (quelle.length()<3) {
 								
 				zahl=Integer.parseInt(quelle)-1;
-				buttons[zahl].setBackground(new Color(0, 100, 255));
+				buttons[zahl].setIcon(blau);
 
 				if (!geklickt[zahl]) {
 					geklickt[zahl] = true;				
@@ -229,7 +235,7 @@ public class GUI extends JFrame implements ActionListener {
 					
 				} else {
 					geklickt[zahl] = false;
-					buttons[zahl].setBackground(new Color(255, 255, 255));
+					buttons[zahl].setIcon(grau);
 				}
 
 			}
@@ -282,7 +288,7 @@ public class GUI extends JFrame implements ActionListener {
 	}
 
 	void EbeneUpdate() { // Methode die die Buttons updated
-
+		
 		CurrentEbenetext.setText("Ebene = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
 		int CurrentOffset = (CurrentEbene) * 64;// Button Offset
 
@@ -291,10 +297,11 @@ public class GUI extends JFrame implements ActionListener {
 			if (matrix[i + CurrentOffset]) // Findet den Status der Knöpfe heraus
 			{
 				geklickt[i] = true;
-				buttons[i].setBackground(new Color(0, 100, 255)); // Setzt den Button entsprechend
+				//buttons[i].setBackground(new Color(0, 100, 255)); // Setzt den Button entsprechend
+				buttons[i].setIcon(blau);
 			} else {
 				geklickt[i] = false;
-				buttons[i].setBackground(new Color(255, 255, 255));// Setzt den Button entsprechend
+				buttons[i].setIcon(grau);// Setzt den Button entsprechend
 			}
 		}
 	}
