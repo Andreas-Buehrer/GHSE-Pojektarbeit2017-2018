@@ -10,6 +10,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Arrays;
+
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,20 +21,27 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.swing.JLabel;
+import javax.swing.JList;
 
 public class GUI extends JFrame implements ActionListener {
 
 	ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
 	ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png");	
 	final int LEDS = 64; // Anzahl der LEDS
-	int layer = 0, countm, countn, button;
+	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0;;
+	boolean[] doppelt = new boolean[20];
 	private JButton[] buttons;
 	private JLabel CurrentEbenetext;
-	private JButton output;
-	private JButton ebeneup;
-	private JButton ebenedown;
-	private JButton reset;
+	private JButton output,ebeneup,ebenedown,reset,sframe;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
 	public boolean[] matrixTemp = new boolean[512];
@@ -39,7 +49,8 @@ public class GUI extends JFrame implements ActionListener {
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
 	private JFrame frame;
-	
+	public JTextField textField;
+	public JList list;
 	
 
 	/**
@@ -128,61 +139,146 @@ public class GUI extends JFrame implements ActionListener {
 		panel.setLayout(null);
 				
 		JPanel buttonPanel = new JPanel();						//CUBE
-		buttonPanel.setBounds(0, 0, 900, 900);
-		buttonPanel.setLayout(new GridLayout(9, 8, -1, -1));
+		buttonPanel.setBounds(0, 0, 800, 800);
+		buttonPanel.setLayout(new GridLayout(8, 8, -1, -1));
 		panel.add(buttonPanel);
 		
-
-		
-		JPanel panel_2 = new JPanel();			//MENUELEISTE
-		panel_2.setBounds(494, 11, 153, 374);
-		panel.add(panel_2);
-		
-				
+		JPanel panel_2 = new JPanel();							//MENUELEISTE
+		panel_2.setBounds(900, 1000, 1800, 1200);
+		panel.add(panel_2);				
 		
 		for (int i = 0; i < buttons.length; i++) {
 			String LED = String.valueOf(i + 1); // +1 Damit die Buttons von 1-64 gezÃ¤hlt werden
-			JButton button = new JButton(LED,grau);
-
-			//button.setBackground(new Color(255, 255, 255));			
+			JButton button = new JButton(LED,grau);			
 			
+			button.setVerticalTextPosition(SwingConstants.TOP);
+			//button.setHorizontalTextPosition(SwingConstants.CENTER);
 			button.addActionListener(this);
 			button.setMnemonic(LED.charAt(0));
 
 			buttons[i] = button;
 			buttonPanel.add(buttons[i]);
 		}
-
+		
 		output = new JButton("Weiter");
-		buttonPanel.add(output);
+		output.setBounds(30,830,100,30);
+		panel.add(output);
 		output.addActionListener(this);
-		output.setBackground(Color.gray);
+		output.setBackground(Color.white);
 
 		ebeneup = new JButton("Ebene hoch");
-		buttonPanel.add(ebeneup);
+		ebeneup.setBounds(130,830,100,30);
+		panel.add(ebeneup);
 		ebeneup.addActionListener(this);
-		ebeneup.setBackground(Color.gray);
+		ebeneup.setBackground(Color.green);
 
 		ebenedown = new JButton("Ebene runter");
-		buttonPanel.add(ebenedown);
+		ebenedown.setBounds(230,830,120,30);
+		panel.add(ebenedown);
 		ebenedown.addActionListener(this);
-		ebenedown.setBackground(Color.gray);
+		ebenedown.setBackground(Color.red);
 
 		reset= new JButton("Reset");
-		buttonPanel.add(reset);
+		reset.setBounds(350,830,100,30);
+		panel.add(reset);
 		reset.addActionListener(this);
-		reset.setBackground(Color.gray);
+		reset.setBackground(Color.white);
 		
 		int displayEbene = CurrentEbene + 1;
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
-		buttonPanel.add(CurrentEbenetext);
-
+		CurrentEbenetext.setBounds(480,830,100,50);
+		panel.add(CurrentEbenetext);
 		
+		JButton addButton= new JButton("Save current Frame");
+		addButton.setBounds(810,20,250,70);
+		panel.add(addButton);
+		addButton.addActionListener(this);
+		addButton.setBackground(Color.white);
+		
+
+	    JButton add = new JButton("Add to video");
+		add.setBounds(810,465,250,30);
+		add.setBackground(Color.green);
+		    
+		final DefaultListModel model = new DefaultListModel(); 
+		final JList list = new JList(model);		
+	    list.setBounds(810,100,250,355);
+	    list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	    JButton removeButton = new JButton("Remove Element");
+	    removeButton.setBounds(810,765,250,30);
+	    removeButton.setBackground(Color.red);
+	    for (int i = 0; i < 8; i++) {
+	        model.addElement("Frame " + i);
+	    }
+	    
+	    final DefaultListModel model2 = new DefaultListModel(); 
+		final JList list2 = new JList(model2);		
+	    list2.setBounds(810,505,250,250);
+	    list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	    
+	    addButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	          model.addElement("Frame " + counter);
+	          counter++;
+	        }
+	      });
+	      removeButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	        	
+	        	if (list2.getSelectedIndex() >= 0) {			//nur löschbar wenn ein item ausgewählt wurde
+	        		model2.remove(list2.getSelectedIndex());
+				}	
+	        }
+	        	
+	        	
+	      });
+	      for (int i = 0; i <=19; i++) {		//kein itemname ist doppelt bisher
+			doppelt[i]=false;
+		}
+	      
+		    add.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {		        
+		        	Object selectedItem = list.getSelectedValue();
+		        	
+		        	//Object item1 = list2.getModel().getElementAt(selectedItem);
+		        	
+		          for (int i = 0; i < list2.getModel().getSize() ; i++) {
+		        	  Object item2 = list2.getModel().getElementAt(i);
+		        	 
+			          if (selectedItem == item2) {
+						doppelt[i] = true;
+					}	
+			          System.out.println(doppelt[i]);
+				} 
+		          
+		          
+		          if (Arrays.asList(doppelt).contains(true)) {
+		        	  
+				}else {
+					 model2.addElement("Importieres Frame :       " + selectedItem);
+					 for (int i = 0; i <=19; i++) {		//kein itemname ist doppelt bisher
+							doppelt[i]=false;
+						}
+				}
+		        	 
+		        	  
+					         
+		         
+		          
+		        }
+		      });
+		     
+		      
+		      panel.add(add);
+	      
+	      panel.add(list);
+	      panel.add(removeButton);
+		  panel.add(list2);
+		    
 	}
 
-	
-	
 	public void actionPerformed(ActionEvent e) {
+		
 		
 		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////		
 		Undo undo = new Undo();
