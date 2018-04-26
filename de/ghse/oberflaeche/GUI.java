@@ -123,8 +123,7 @@ public class GUI extends JFrame implements ActionListener {
 		Undo.setIcon(undo);
 		Edit.add(Undo);
 		Undo.addActionListener(this);
-		
-		
+				
 		JMenuItem Redo = new JMenuItem("Redo");
 		ImageIcon redo = new ImageIcon("pictures/redo.png");
 		Redo.setIcon(redo);
@@ -132,7 +131,6 @@ public class GUI extends JFrame implements ActionListener {
 		Undo.addActionListener(this);
 
 		buttons = new JButton[LEDS];
-
 		
 		JPanel panel = new JPanel();							//UNTEN DRUNTER
 		frame.getContentPane().add(panel);
@@ -189,91 +187,122 @@ public class GUI extends JFrame implements ActionListener {
 		CurrentEbenetext.setBounds(480,830,100,50);
 		panel.add(CurrentEbenetext);
 		
-		JButton addButton= new JButton("Save current Frame");
-		addButton.setBounds(810,20,250,70);
+		 	final DefaultListModel model = new DefaultListModel(); 
+			final JList list = new JList(model);		
+		    list.setBounds(810,100,250,200);
+		    list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		    panel.add(list);
+		    
+		    final DefaultListModel model2 = new DefaultListModel(); 
+			final JList list2 = new JList(model2);		
+		    list2.setBounds(810,375,250,200);
+		    list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		    panel.add(list2);
+		    
+		    final DefaultListModel model3 = new DefaultListModel(); 
+			final JList list3 = new JList(model3);		
+		    list3.setBounds(810,650,250,200);
+		    list3.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		    panel.add(list3);
+		
+		JButton addButton= new JButton("Save current frame");
+		addButton.setBounds(810,10,250,80);
 		panel.add(addButton);
 		addButton.addActionListener(this);
 		addButton.setBackground(Color.white);
 		
-
-	    JButton add = new JButton("Add to video");
-		add.setBounds(810,465,250,30);
-		add.setBackground(Color.green);
-		    
-		final DefaultListModel model = new DefaultListModel(); 
-		final JList list = new JList(model);		
-	    list.setBounds(810,100,250,355);
-	    list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	    JButton removeButton = new JButton("Remove Element");
-	    removeButton.setBounds(810,765,250,30);
+	    JButton addToCombiner = new JButton("Add to combiner");
+		addToCombiner.setBounds(810,340,250,30);
+		addToCombiner.setBackground(Color.green);
+		panel.add(addToCombiner);	 
+		
+		JButton addToVideo = new JButton("Add to video");
+		addToVideo.setBounds(810,615,250,30);
+		addToVideo.setBackground(Color.green);
+		panel.add(addToVideo);
+		
+		JButton saveVid = new JButton("Save video as...");
+		saveVid.setBounds(810,890,250,30);
+		saveVid.setBackground(Color.green);
+		panel.add(saveVid);
+		    	    
+	    JButton removeButton = new JButton("Remove frame");
+	    removeButton.setBounds(810,305,250,30);
 	    removeButton.setBackground(Color.red);
+	    panel.add(removeButton);
+	    
+	    JButton removeButton2 = new JButton("Remove element");
+	    removeButton2.setBounds(810,580,250,30);
+	    removeButton2.setBackground(Color.red);
+	    panel.add(removeButton2);
+	    
+	    JButton removeButton3 = new JButton("Remove video");
+	    removeButton3.setBounds(810,855,250,30);
+	    removeButton3.setBackground(Color.red);
+	    panel.add(removeButton3);
+	    	   	    	   	    
 	    for (int i = 0; i < 8; i++) {
 	        model.addElement("Frame " + i);
 	    }
 	    
-	    final DefaultListModel model2 = new DefaultListModel(); 
-		final JList list2 = new JList(model2);		
-	    list2.setBounds(810,505,250,250);
-	    list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-	    
 	    addButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
+	        	
 	          model.addElement("Frame " + counter);
 	          counter++;
 	        }
 	      });
+	    
 	      removeButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	        	
-	        	if (list2.getSelectedIndex() >= 0) {			//nur löschbar wenn ein item ausgewählt wurde
-	        		model2.remove(list2.getSelectedIndex());
-				}	
-	        }
-	        	
-	        	
+	        		        		        	
+	        	model.remove(list.getSelectedIndex());											        		        		        		        						
+	        }       		        	
 	      });
-	      for (int i = 0; i <=19; i++) {		//kein itemname ist doppelt bisher
-			doppelt[i]=false;
-		}
 	      
-		    add.addActionListener(new ActionListener() {
-		        public void actionPerformed(ActionEvent e) {		        
-		        	Object selectedItem = list.getSelectedValue();
-		        	
-		        	//Object item1 = list2.getModel().getElementAt(selectedItem);
-		        	
-		          for (int i = 0; i < list2.getModel().getSize() ; i++) {
-		        	  Object item2 = list2.getModel().getElementAt(i);
-		        	 
-			          if (selectedItem == item2) {
-						doppelt[i] = true;
-					}	
-			          System.out.println(doppelt[i]);
-				} 
-		          
-		          
-		          if (Arrays.asList(doppelt).contains(true)) {
-		        	  
-				}else {
-					 model2.addElement("Importieres Frame :       " + selectedItem);
-					 for (int i = 0; i <=19; i++) {		//kein itemname ist doppelt bisher
-							doppelt[i]=false;
-						}
-				}
-		        	 
-		        	  
-					         
-		         
-		          
+	      removeButton2.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        		        		        	
+		        	model2.remove(list2.getSelectedIndex());											        		        		        		        						
+		        }       		        	
+		      });
+	      
+	      removeButton3.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        		        		        	
+		        	model3.remove(list3.getSelectedIndex());											        		        		        		        						
+		        }       		        	
+		      });
+	      
+	      addToCombiner.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        
+		        	Object selectedItem = list.getSelectedValue();		        			    
+		        	model2.addElement("Importieres  " + selectedItem);  
+		         		          
 		        }
 		      });
-		     
-		      
-		      panel.add(add);
 	      
-	      panel.add(list);
-	      panel.add(removeButton);
-		  panel.add(list2);
+	      addToVideo.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        
+		        	Object selectedItem = list2.getSelectedValue();		        			    
+		        	model3.addElement("Importieres Video  mit: " + selectedItem);  
+		         		          
+		        }
+		      });
+	      
+	      saveVid.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        
+		        	Object selectedItem = list3.getSelectedValue();		        			    
+		        	  
+		         		          
+		        }
+		      });
+	      	      	      
+	      
+		     		      		       		
 		    
 	}
 
