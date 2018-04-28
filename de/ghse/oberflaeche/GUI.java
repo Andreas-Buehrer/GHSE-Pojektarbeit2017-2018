@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
-
+import javax.swing.event.ListSelectionListener;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -37,14 +37,14 @@ public class GUI extends JFrame implements ActionListener {
 	ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
 	ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png");	
 	final int LEDS = 64; // Anzahl der LEDS
-	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0;;
-	boolean[] doppelt = new boolean[20];
+	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0;	
 	private JButton[] buttons;
 	private JLabel CurrentEbenetext;
 	private JButton output,ebeneup,ebenedown,reset,sframe;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
 	public boolean[] matrixTemp = new boolean[512];
+	public boolean[][] matrixArray = new boolean[512][15];	//max 15 Frames können gespeichert werden
 	private int CurrentEbene = 0;
 	Steuerung obj = new Steuerung();
 	Boolean an_aus;
@@ -159,51 +159,53 @@ public class GUI extends JFrame implements ActionListener {
 		}
 		
 		output = new JButton("Weiter");
-		output.setBounds(30,830,100,30);
-		panel.add(output);
+		output.setBounds(30,830,100,30);		
 		output.addActionListener(this);
 		output.setBackground(Color.white);
+		panel.add(output);
 
 		ebeneup = new JButton("Ebene hoch");
-		ebeneup.setBounds(130,830,100,30);
-		panel.add(ebeneup);
+		ebeneup.setBounds(130,830,100,30);		
 		ebeneup.addActionListener(this);
 		ebeneup.setBackground(Color.green);
+		panel.add(ebeneup);
 
 		ebenedown = new JButton("Ebene runter");
-		ebenedown.setBounds(230,830,120,30);
-		panel.add(ebenedown);
+		ebenedown.setBounds(230,830,120,30);		
 		ebenedown.addActionListener(this);
 		ebenedown.setBackground(Color.red);
+		panel.add(ebenedown);
 
 		reset= new JButton("Reset");
-		reset.setBounds(350,830,100,30);
-		panel.add(reset);
+		reset.setBounds(350,830,100,30);		
 		reset.addActionListener(this);
 		reset.setBackground(Color.white);
+		panel.add(reset);
 		
 		int displayEbene = CurrentEbene + 1;
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
 		CurrentEbenetext.setBounds(480,830,100,50);
 		panel.add(CurrentEbenetext);
 		
-		 	final DefaultListModel model = new DefaultListModel(); 
-			final JList list = new JList(model);		
-		    list.setBounds(810,100,250,200);
-		    list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		    panel.add(list);
-		    
-		    final DefaultListModel model2 = new DefaultListModel(); 
-			final JList list2 = new JList(model2);		
-		    list2.setBounds(810,375,250,200);
-		    list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		    panel.add(list2);
-		    
-		    final DefaultListModel model3 = new DefaultListModel(); 
-			final JList list3 = new JList(model3);		
-		    list3.setBounds(810,650,250,200);
-		    list3.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		    panel.add(list3);
+		
+		final DefaultListModel model = new DefaultListModel(); 
+		final JList list = new JList(model);		
+		list.setBounds(810,100,250,200);
+		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		panel.add(list);
+		   		    
+		final DefaultListModel model2 = new DefaultListModel(); 
+		final JList list2 = new JList(model2);		
+		list2.setBounds(810,375,250,200);
+		list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		panel.add(list2);
+		   		    
+		final DefaultListModel model3 = new DefaultListModel(); 
+		final JList list3 = new JList(model3);		
+		list3.setBounds(810,650,250,200);
+		list3.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		panel.add(list3);
+		   
 		
 		JButton addButton= new JButton("Save current frame");
 		addButton.setBounds(810,10,250,80);
@@ -216,14 +218,14 @@ public class GUI extends JFrame implements ActionListener {
 		addToCombiner.setBackground(Color.green);
 		panel.add(addToCombiner);	 
 		
-		JButton addToVideo = new JButton("Add to video");
+		JButton addToVideo = new JButton("Combine and create video");
 		addToVideo.setBounds(810,615,250,30);
 		addToVideo.setBackground(Color.green);
 		panel.add(addToVideo);
 		
 		JButton saveVid = new JButton("Save video as...");
 		saveVid.setBounds(810,890,250,30);
-		saveVid.setBackground(Color.green);
+		saveVid.setBackground(Color.white);
 		panel.add(saveVid);
 		    	    
 	    JButton removeButton = new JButton("Remove frame");
@@ -240,45 +242,42 @@ public class GUI extends JFrame implements ActionListener {
 	    removeButton3.setBounds(810,855,250,30);
 	    removeButton3.setBackground(Color.red);
 	    panel.add(removeButton3);
-	    	   	    	   	    
-	    for (int i = 0; i < 8; i++) {
-	        model.addElement("Frame " + i);
-	    }
-	    
-	    addButton.addActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e) {
-	        	
-	          model.addElement("Frame " + counter);
-	          counter++;
+	   
+	    list.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent arg0) {
+                if (!arg0.getValueIsAdjusting()) {
+                	
+                	int index = list.getSelectedIndex(); 
+                	System.out.println("Item " + index + " wurde angeklickt!");
+                	for (int i = 0; i <= 511; i++) {
+                		matrix[i] = matrixArray[i][frameNummer];
+					}
+                	EbeneUpdate();
+                }
+            }
+        });
+	   	    
+	    addButton.addActionListener(new ActionListener() {		
+	        public void actionPerformed(ActionEvent e) {	        	
+	        	frameNummer++;
+	        	for (int j = 0; j <= 511; j++) {
+	        		matrixArray[j][frameNummer] = matrix[j]; 	//die jetzige matrix wird in ein weiteres Array gespewichert und kann immer wieder abgerufen werden. 
+				}	      
+	          model.addElement("Frame " + frameNummer);
+	 
 	        }
 	      });
 	    
-	      removeButton.addActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e) {
-	        		        		        	
-	        	model.remove(list.getSelectedIndex());											        		        		        		        						
-	        }       		        	
-	      });
-	      
-	      removeButton2.addActionListener(new ActionListener() {
-		        public void actionPerformed(ActionEvent e) {
-		        		        		        	
-		        	model2.remove(list2.getSelectedIndex());											        		        		        		        						
-		        }       		        	
-		      });
-	      
-	      removeButton3.addActionListener(new ActionListener() {
-		        public void actionPerformed(ActionEvent e) {
-		        		        		        	
-		        	model3.remove(list3.getSelectedIndex());											        		        		        		        						
-		        }       		        	
-		      });
 	      
 	      addToCombiner.addActionListener(new ActionListener() {
 		        public void actionPerformed(ActionEvent e) {
 		        
-		        	Object selectedItem = list.getSelectedValue();		        			    
-		        	model2.addElement("Importieres  " + selectedItem);  
+		        	Object selectedItem = list.getSelectedValue();
+		        	if (selectedItem != null) {						//nur wenn ein item ausgewählt wurde
+		        		model2.addElement("Importieres  " + selectedItem);  
+					}
+		        	
 		         		          
 		        }
 		      });
@@ -286,9 +285,10 @@ public class GUI extends JFrame implements ActionListener {
 	      addToVideo.addActionListener(new ActionListener() {
 		        public void actionPerformed(ActionEvent e) {
 		        
-		        	Object selectedItem = list2.getSelectedValue();		        			    
+		        	Object selectedItem = list2.getSelectedValue();
+		        	if (selectedItem != null) {	
 		        	model3.addElement("Importieres Video  mit: " + selectedItem);  
-		         		          
+		        	}          
 		        }
 		      });
 	      
@@ -300,7 +300,27 @@ public class GUI extends JFrame implements ActionListener {
 		         		          
 		        }
 		      });
-	      	      	      
+	      	     
+	      removeButton.addActionListener(new ActionListener() {
+		        public void actionPerformed(ActionEvent e) {
+		        		        		        	
+		        	model.remove(list.getSelectedIndex());											        		        		        		        						
+		        }       		        	
+		      });
+		      
+		      removeButton2.addActionListener(new ActionListener() {
+			        public void actionPerformed(ActionEvent e) {
+			        		        		        	
+			        	model2.remove(list2.getSelectedIndex());											        		        		        		        						
+			        }       		        	
+			      });
+		      
+		      removeButton3.addActionListener(new ActionListener() {
+			        public void actionPerformed(ActionEvent e) {
+			        		        		        	
+			        	model3.remove(list3.getSelectedIndex());											        		        		        		        						
+			        }       		        	
+			      });
 	      
 		     		      		       		
 		    
