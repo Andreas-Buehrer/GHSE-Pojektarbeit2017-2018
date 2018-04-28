@@ -10,7 +10,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -21,14 +20,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.swing.JLabel;
 import javax.swing.JList;
 
@@ -36,21 +31,25 @@ public class GUI extends JFrame implements ActionListener {
 
 	ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
 	ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png");	
-	final int LEDS = 64; // Anzahl der LEDS
-	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0;	
+	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64;	
 	private JButton[] buttons;
 	private JLabel CurrentEbenetext;
 	private JButton output,ebeneup,ebenedown,reset,sframe;
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
 	public boolean[] matrixTemp = new boolean[512];
-	public boolean[][] matrixArray = new boolean[512][15];	//max 15 Frames können gespeichert werden
-	private int CurrentEbene = 0;
-	Steuerung obj = new Steuerung();
-	Boolean an_aus;
+	public boolean[][] matrixArray = new boolean[512][15];	//max 15 Frames können gespeichert werden		
+	public Boolean an_aus;
 	private JFrame frame;
 	public JTextField textField;
 	public JList list;
+	
+	SimpleDataSending netsend = new SimpleDataSending();	//Konstruktoren
+	FileManager getdatafile = new FileManager();		
+	Steuerung obj = new Steuerung();
+	Stoppuhr time = new Stoppuhr();
+	Undo undo = new Undo();	
+	
 	
 
 	/**
@@ -129,9 +128,7 @@ public class GUI extends JFrame implements ActionListener {
 		Redo.setIcon(redo);
 		Edit.add(Redo);
 		Undo.addActionListener(this);
-
-		buttons = new JButton[LEDS];
-		
+				
 		JPanel panel = new JPanel();							//UNTEN DRUNTER
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
@@ -145,15 +142,16 @@ public class GUI extends JFrame implements ActionListener {
 		panel_2.setBounds(900, 1000, 1800, 1200);
 		panel.add(panel_2);				
 		
+		buttons = new JButton[LEDS];
+		
 		for (int i = 0; i < buttons.length; i++) {
-			String LED = String.valueOf(i + 1); // +1 Damit die Buttons von 1-64 gezÃ¤hlt werden
+			
+			String LED = String.valueOf(i + 1);			 // +1 Damit die Buttons von 1-64 gezaehlt werden
 			JButton button = new JButton(LED,grau);			
 			
 			button.setVerticalTextPosition(SwingConstants.TOP);
-			//button.setHorizontalTextPosition(SwingConstants.CENTER);
 			button.addActionListener(this);
 			button.setMnemonic(LED.charAt(0));
-
 			buttons[i] = button;
 			buttonPanel.add(buttons[i]);
 		}
@@ -324,14 +322,10 @@ public class GUI extends JFrame implements ActionListener {
 	      
 		     		      		       		
 		    
-	}
+	} //ende initialize
 
-	public void actionPerformed(ActionEvent e) {
-		
-		
-		FileManager getdatafile = new FileManager();		//KONSTRUKTOREN //////////////////////////		
-		Undo undo = new Undo();
-		
+	public void actionPerformed(ActionEvent e) {				
+	
 		String quelle = e.getActionCommand();		
 		
 		switch (quelle) {
@@ -361,13 +355,13 @@ public class GUI extends JFrame implements ActionListener {
 			break;
 		}
 		
-		ButtonPanelActionListener(quelle); // Ã¼bergibt string "quelle" an methode ButtonPanelActionListener
+		ButtonPanelActionListener(quelle); // Uebergibt string "quelle" an methode ButtonPanelActionListener
 	}
 
 
-	public void ButtonPanelActionListener(String quelle) { // actionlistener um herasuzufinden welcher button gedrï¿½ckt
-															// wurde. jeder Button Teilt sich einen ActionListener
-		Undo undo = new Undo();								
+	public void ButtonPanelActionListener(String quelle) { // actionlistener um herasuzufinden welcher button gedrueckt wurde
+		
+		
 		int zahl = 0;
 
 		 if (quelle.length()<3) {
@@ -394,8 +388,6 @@ public class GUI extends JFrame implements ActionListener {
 			EbeneUpdate();
 			break;
 		case "Weiter":
-			SimpleDataSending netsend = new SimpleDataSending();
-			Stoppuhr time=new Stoppuhr();
 			time.StartTimer();
 			try {
 				netsend.Stringbuilder(matrix,1);
