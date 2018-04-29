@@ -38,6 +38,7 @@ public class GUI extends JFrame implements ActionListener {
 	private boolean[] geklickt = new boolean[LEDS];
 	private boolean[] matrix = new boolean[512];
 	public boolean[] matrixTemp = new boolean[512];
+	public boolean[] matrixAnzeige = new boolean[512];
 	public boolean[][] matrixArray = new boolean[512][15];	//max 15 Frames können gespeichert werden		
 	public Boolean an_aus;
 	private JFrame frame;
@@ -245,11 +246,11 @@ public class GUI extends JFrame implements ActionListener {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
                 if (!arg0.getValueIsAdjusting()) {
-                	
                 	int index = list.getSelectedIndex(); 
-                	System.out.println("Item " + index + " wurde angeklickt!");
-                	for (int i = 0; i <= 511; i++) {
-                		matrix[i] = matrixArray[i][frameNummer];
+                	
+                	for (int i = 0; i <= 511; i++) {               
+                		matrix[i] = matrixArray[i][index+1]; 		
+                		
 					}
                 	EbeneUpdate();
                 }
@@ -257,12 +258,18 @@ public class GUI extends JFrame implements ActionListener {
         });
 	   	    
 	    addButton.addActionListener(new ActionListener() {		
-	        public void actionPerformed(ActionEvent e) {	        	
+	        public void actionPerformed(ActionEvent e) {
+	        		        		        	
 	        	frameNummer++;
+	        	System.out.println(frameNummer);
+	        	
 	        	for (int j = 0; j <= 511; j++) {
 	        		matrixArray[j][frameNummer] = matrix[j]; 	//die jetzige matrix wird in ein weiteres Array gespewichert und kann immer wieder abgerufen werden. 
 				}	      
 	          model.addElement("Frame " + frameNummer);
+	          
+	          MatrixInit();
+	          EbeneUpdate();
 	 
 	        }
 	      });

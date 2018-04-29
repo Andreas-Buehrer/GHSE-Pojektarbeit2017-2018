@@ -17,9 +17,9 @@ public class Steuerung {
 	
 	int LED,rest,rest2,z,y,x;
     do {
-      //System.out.println("Geben Sie eine Zahl zwischen 1 und 511 ein:"+buttons);
+     
       LED =buttons;
-    } while (LED<1 || LED>512); // end of do-while
+    } while (LED<1 || LED>512); 
     
     if (LED%64==0) {
       rest=0;
