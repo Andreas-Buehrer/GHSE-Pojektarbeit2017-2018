@@ -9,8 +9,12 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.io.IOException;
 import javax.swing.event.ListSelectionListener;
+
+import com.sun.glass.events.MouseEvent;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -20,9 +24,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -85,8 +91,8 @@ public class GUI extends JFrame implements ActionListener {
 		
 		MatrixInit();
 		
-		int frameWidth = 1800;
-		int frameHeight = 1000;
+		int frameWidth = 1920;
+		int frameHeight = 1042;
 
 		frame = new JFrame();
 		frame.setSize(frameWidth, frameHeight);
@@ -207,7 +213,7 @@ public class GUI extends JFrame implements ActionListener {
 		   
 		
 		JButton addButton= new JButton("Save current frame");
-		addButton.setBounds(810,10,250,80);
+		addButton.setBounds(810,10,250,50);
 		panel.add(addButton);
 		addButton.addActionListener(this);
 		addButton.setBackground(Color.white);
@@ -241,18 +247,90 @@ public class GUI extends JFrame implements ActionListener {
 	    removeButton3.setBounds(810,855,250,30);
 	    removeButton3.setBackground(Color.red);
 	    panel.add(removeButton3);
-	   
+	    
+	    JButton deselectButton = new JButton("Save & Deselect item");
+	    deselectButton.setBounds(810,65,250,30);
+	    deselectButton.setBackground(Color.gray);
+	    panel.add(deselectButton);
+	    
+	    final JPopupMenu popupMenu = new JPopupMenu();
+	    popupMenu.add(new JMenuItem("Rename"));	   
+	    popupMenu.add(new JMenuItem("Delete"));
+	    
+	    list.addMouseListener(new MouseAdapter() {
+	         public void mouseClicked(java.awt.event.MouseEvent me) {
+	            if (SwingUtilities.isRightMouseButton(me)    // if right mouse button clicked
+	                  && !list.isSelectionEmpty()            // and list selection is not empty
+	                  && list.locationToIndex(me.getPoint()) // and clicked point is
+	                  == list.getSelectedIndex()) {      	 // inside selected item bounds
+	               popupMenu.show(list, me.getX(), me.getY());
+	            }
+	         }
+	      });
+	    
+	    deselectButton.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	        	
+	        	int index = list.getSelectedIndex(); 		// get item number
+	        	
+	        	for (int i = 0; i <= 511; i++) {               
+            		matrixArray[i][index+1] = matrix[i]; 		            		
+				}
+	        	
+	        	list.clearSelection();
+	        	list2.clearSelection();
+	        	list3.clearSelection();
+	        		        	
+	        }
+	      });
+	   	    
 	    list.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
-                if (!arg0.getValueIsAdjusting()) {
-                	int index = list.getSelectedIndex(); 
+                if (!arg0.getValueIsAdjusting()) { 
+                	              	                	
+                	int index = list.getSelectedIndex(); 		// get item number
                 	
                 	for (int i = 0; i <= 511; i++) {               
                 		matrix[i] = matrixArray[i][index+1]; 		
                 		
 					}
                 	EbeneUpdate();
+                	
+                }
+            }
+        });
+	    
+	    list2.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent arg0) {
+                if (!arg0.getValueIsAdjusting()) { 
+                	              	                	
+                	int index = list2.getSelectedIndex(); 		// get item number
+                	
+                	for (int i = 0; i <= 511; i++) {               
+                		matrix[i] = matrixArray[i][index+1]; 		
+                		
+					}
+                	EbeneUpdate();
+                	
+                }
+            }
+        });
+	    
+	    list3.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent arg0) {
+                if (!arg0.getValueIsAdjusting()) { 
+                	              	                	
+                	int index = list3.getSelectedIndex(); 		// get item number
+                	
+                	for (int i = 0; i <= 511; i++) {               
+                		matrix[i] = matrixArray[i][index+1]; 		
+                		
+					}
+                	EbeneUpdate();
+                	
                 }
             }
         });
@@ -260,8 +338,7 @@ public class GUI extends JFrame implements ActionListener {
 	    addButton.addActionListener(new ActionListener() {		
 	        public void actionPerformed(ActionEvent e) {
 	        		        		        	
-	        	frameNummer++;
-	        	System.out.println(frameNummer);
+	        	frameNummer++;	        	
 	        	
 	        	for (int j = 0; j <= 511; j++) {
 	        		matrixArray[j][frameNummer] = matrix[j]; 	//die jetzige matrix wird in ein weiteres Array gespewichert und kann immer wieder abgerufen werden. 
