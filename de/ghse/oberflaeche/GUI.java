@@ -105,13 +105,13 @@ public class GUI extends JFrame implements ActionListener {
 		JMenu File = new JMenu("File");
 		menuBar.add(File);
 
-		JMenuItem OpenFile = new JMenuItem("Open File...");
+		JMenuItem OpenFile = new JMenuItem("Open File . . .");
 		ImageIcon openFile = new ImageIcon("pictures/openFile.png");
 		OpenFile.setIcon(openFile);
 		File.add(OpenFile);
 		OpenFile.addActionListener(this);
 
-		JMenuItem SaveAs = new JMenuItem("Save as...");
+		JMenuItem SaveAs = new JMenuItem("Save as . . .");
 		ImageIcon saveAs = new ImageIcon("pictures/saveAs.png");
 		SaveAs.setIcon(saveAs);
 		File.add(SaveAs);
@@ -124,18 +124,12 @@ public class GUI extends JFrame implements ActionListener {
 		JMenu Edit = new JMenu("Edit");
 		menuBar.add(Edit);
 		
-		JMenuItem Undo = new JMenuItem("Undo");
+		JMenuItem Undo = new JMenuItem("Undo reset");
 		ImageIcon undo = new ImageIcon("pictures/undo.png");
 		Undo.setIcon(undo);
 		Edit.add(Undo);
 		Undo.addActionListener(this);
-				
-		JMenuItem Redo = new JMenuItem("Redo");
-		ImageIcon redo = new ImageIcon("pictures/redo.png");
-		Redo.setIcon(redo);
-		Edit.add(Redo);
-		Undo.addActionListener(this);
-				
+										
 		JPanel panel = new JPanel();							//UNTEN DRUNTER
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
@@ -189,7 +183,7 @@ public class GUI extends JFrame implements ActionListener {
 		
 		int displayEbene = CurrentEbene + 1;
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
-		CurrentEbenetext.setBounds(480,830,100,50);
+		CurrentEbenetext.setBounds(480,820,100,50);
 		panel.add(CurrentEbenetext);
 		
 		
@@ -228,7 +222,7 @@ public class GUI extends JFrame implements ActionListener {
 		addToVideo.setBackground(Color.green);
 		panel.add(addToVideo);
 		
-		JButton saveVid = new JButton("Save video as...");
+		JButton saveVid = new JButton("Save video as . . .");
 		saveVid.setBounds(810,890,250,30);
 		saveVid.setBackground(Color.white);
 		panel.add(saveVid);
@@ -253,10 +247,14 @@ public class GUI extends JFrame implements ActionListener {
 	    deselectButton.setBackground(Color.gray);
 	    panel.add(deselectButton);
 	    
-	    final JPopupMenu popupMenu = new JPopupMenu();
-	    popupMenu.add(new JMenuItem("Rename"));	   
-	    popupMenu.add(new JMenuItem("Delete"));
-	    
+	    	    
+	   
+	    final JPopupMenu popupMenu = new JPopupMenu();	    
+	    JMenuItem rename = new JMenuItem("Rename");	   
+	    JMenuItem save = new JMenuItem("Save as . . .");
+	    popupMenu.add(rename);
+	    popupMenu.add(save);
+	    	    	    
 	    list.addMouseListener(new MouseAdapter() {
 	         public void mouseClicked(java.awt.event.MouseEvent me) {
 	            if (SwingUtilities.isRightMouseButton(me)    // if right mouse button clicked
@@ -265,6 +263,7 @@ public class GUI extends JFrame implements ActionListener {
 	                  == list.getSelectedIndex()) {      	 // inside selected item bounds
 	               popupMenu.show(list, me.getX(), me.getY());
 	            }
+	            
 	         }
 	      });
 	    
@@ -284,19 +283,16 @@ public class GUI extends JFrame implements ActionListener {
 	        }
 	      });
 	   	    
-	    list.addListSelectionListener(new ListSelectionListener() {
+	    list.addListSelectionListener(new ListSelectionListener() {					//wenn item angeklickt wird
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
                 if (!arg0.getValueIsAdjusting()) { 
                 	              	                	
-                	int index = list.getSelectedIndex(); 		// get item number
-                	
-                	for (int i = 0; i <= 511; i++) {               
-                		matrix[i] = matrixArray[i][index+1]; 		
-                		
-					}
-                	EbeneUpdate();
-                	
+                	int index = list.getSelectedIndex(); 					// get item number                								
+               			for (int i = 0; i <= 511; i++) {               
+                        		matrix[i] = matrixArray[i][index+1]; 		                      		
+        					}
+                        	EbeneUpdate();				               	              	               	
                 }
             }
         });
@@ -356,11 +352,12 @@ public class GUI extends JFrame implements ActionListener {
 		        public void actionPerformed(ActionEvent e) {
 		        
 		        	Object selectedItem = list.getSelectedValue();
-		        	if (selectedItem != null) {						//nur wenn ein item ausgewählt wurde
-		        		model2.addElement("Importieres  " + selectedItem);  
-					}
+		        	int index = list.getSelectedIndex();
 		        	
-		         		          
+		        	if (selectedItem != null) {								//nur wenn ein item ausgewählt wurde	
+		        		model2.setSize(15);										        				        				        		    		
+		        		model2.set(index, "Importiertes " + selectedItem);
+					}		        			         		          
 		        }
 		      });
 	      
@@ -378,8 +375,7 @@ public class GUI extends JFrame implements ActionListener {
 		        public void actionPerformed(ActionEvent e) {
 		        
 		        	Object selectedItem = list3.getSelectedValue();		        			    
-		        	  
-		         		          
+		        	  		         		          
 		        }
 		      });
 	      	     
@@ -390,19 +386,19 @@ public class GUI extends JFrame implements ActionListener {
 		        }       		        	
 		      });
 		      
-		      removeButton2.addActionListener(new ActionListener() {
-			        public void actionPerformed(ActionEvent e) {
+		  removeButton2.addActionListener(new ActionListener() {
+			    public void actionPerformed(ActionEvent e) {
 			        		        		        	
-			        	model2.remove(list2.getSelectedIndex());											        		        		        		        						
-			        }       		        	
-			      });
+			    	model2.remove(list2.getSelectedIndex());											        		        		        		        						
+			    }       		        	
+			  });
 		      
-		      removeButton3.addActionListener(new ActionListener() {
-			        public void actionPerformed(ActionEvent e) {
+		  removeButton3.addActionListener(new ActionListener() {
+			    public void actionPerformed(ActionEvent e) {
 			        		        		        	
-			        	model3.remove(list3.getSelectedIndex());											        		        		        		        						
-			        }       		        	
-			      });
+			        model3.remove(list3.getSelectedIndex());											        		        		        		        						
+			    }       		        	
+			  });
 	      
 		     		      		       		
 		    
@@ -417,22 +413,22 @@ public class GUI extends JFrame implements ActionListener {
 			System.exit(0);
 			break;
 			
-		case "Open File...":
+		case "Open File . . .":
 			matrix = getdatafile.openFileArray(); // Array wird empfangen
 			EbeneUpdate();
 			break;
 			
-		case "Save as...":
+		case "Save as . . .":
 			getdatafile.SaveArraytoFile(matrix);
 			break;
 			
-		case "Undo":
+		case "Undo reset":
 			matrix=undo.undoTempToMatrix();
 			EbeneUpdate();
 			break;
 			
-		case "Redo":
-			EbeneUpdate();
+		case "Rename":
+			
 			break;
 			
 		default:
@@ -444,8 +440,7 @@ public class GUI extends JFrame implements ActionListener {
 
 
 	public void ButtonPanelActionListener(String quelle) { // actionlistener um herasuzufinden welcher button gedrueckt wurde
-		
-		
+				
 		int zahl = 0;
 
 		 if (quelle.length()<3) {
