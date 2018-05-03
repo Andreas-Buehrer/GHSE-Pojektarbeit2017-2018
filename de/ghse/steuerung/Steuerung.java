@@ -3,19 +3,19 @@ package de.ghse.steuerung;
 import de.ghse.schnittstelle.Schnittstelle;
 
 public class Steuerung {
-	
+  
 
-	
-	short data_leds[][] = new short[9][9]; 
-	//zahlen (an_aus) von 1-255 sollen reingeladen werden 
+  
+  short data_leds[][] = new short[9][9]; 
+  //zahlen (an_aus) von 1-255 sollen reingeladen werden 
 
-	Schnittstelle schnitttigesache = new Schnittstelle();
-	boolean ledfeld[][][] = new boolean[9][9][9];
-	public void knopfGedrueckt(int buttons,boolean an_aus){
-	String Status;
-	
-	
-	int LED,rest,rest2,z,y,x;
+  Schnittstelle schnitttigesache = new Schnittstelle();
+  boolean ledfeld[][][] = new boolean[9][9][9];
+  public void knopfGedrueckt(int buttons,boolean an_aus){
+  String Status;
+  
+  
+  int LED,rest,rest2,z,y,x;
     do {
      
       LED =buttons;
@@ -41,32 +41,32 @@ public class Steuerung {
       } // end of if-else
       
     } // end of if-else
-	System.out.println("Ebene "+z+" Reihe "+y+" Stelle "+x+" Satus "+an_aus);
-	
-	
-		ledfeld[z][y][x]=an_aus;
+  System.out.println("Ebene "+z+" Reihe "+y+" Stelle "+x+" Satus "+an_aus);
+  
+  
+    ledfeld[z][y][x]=an_aus;
     
     
-	
-	
-		
-	}
-	public void setupArray() 
-	{
-		for (int ebene = 1; ebene <= 8; ebene++) {
-			for (int reihe = 1; reihe <= 8; reihe++) {
-				
-				for (int stelle = 1; stelle <= 8; stelle++) {
-					
-					ledfeld[ebene][reihe][stelle]=false;
-				}
-				
-			}
-		}
-	}
-	public void uebertragen() {
-		schnitttigesache.get2dArray(ledfeld);//Mit dieser Methode wird ein 2Dimensionales array erstellt
-		
-	}
-	
+  
+  
+    
+  }
+  public void setupArray() 
+  {
+    for (int ebene = 1; ebene <= 8; ebene++) {
+      for (int reihe = 1; reihe <= 8; reihe++) {
+        
+        for (int stelle = 1; stelle <= 8; stelle++) {
+          
+          ledfeld[ebene][reihe][stelle]=false;
+        }
+        
+      }
+    }
+  }
+  public void uebertragen() {
+    schnitttigesache.get2dArray(ledfeld);//Mit dieser Methode wird ein 2Dimensionales array erstellt
+    
+  }
+  
 }
