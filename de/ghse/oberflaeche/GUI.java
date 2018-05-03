@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import javax.swing.event.ListSelectionListener;
 
@@ -18,8 +19,11 @@ import com.sun.glass.events.MouseEvent;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import java.awt.Color;
+import java.awt.Component;
+
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -27,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.MenuElement;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -37,7 +42,7 @@ public class GUI extends JFrame implements ActionListener {
 
 	ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
 	ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png");	
-	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64;	
+	int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0;	
 	private JButton[] buttons;
 	private JLabel CurrentEbenetext;
 	private JButton output,ebeneup,ebenedown,reset,sframe;
@@ -49,21 +54,20 @@ public class GUI extends JFrame implements ActionListener {
 	public Boolean an_aus;
 	private JFrame frame;
 	public JTextField textField;
-	public JList list;
+	public JList list;	
 	
 	SimpleDataSending netsend = new SimpleDataSending();	//Konstruktoren
 	FileManager getdatafile = new FileManager();		
 	Steuerung obj = new Steuerung();
 	Stoppuhr time = new Stoppuhr();
 	Undo undo = new Undo();	
-	
-	
+		
 
 	/**
 	 * Launch the application.
 	 */
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -81,7 +85,6 @@ public class GUI extends JFrame implements ActionListener {
 	 */
 	public GUI() {
 		initialize();
-
 	}
 
 	/**
@@ -96,8 +99,7 @@ public class GUI extends JFrame implements ActionListener {
 
 		frame = new JFrame();
 		frame.setSize(frameWidth, frameHeight);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(0, 1, 0, 0));		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);			
 
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
@@ -185,7 +187,7 @@ public class GUI extends JFrame implements ActionListener {
 		CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
 		CurrentEbenetext.setBounds(480,820,100,50);
 		panel.add(CurrentEbenetext);
-		
+				
 		
 		final DefaultListModel model = new DefaultListModel(); 
 		final JList list = new JList(model);		
@@ -246,32 +248,32 @@ public class GUI extends JFrame implements ActionListener {
 	    deselectButton.setBounds(810,65,250,30);
 	    deselectButton.setBackground(Color.gray);
 	    panel.add(deselectButton);
-	    
-	    	    
-	   
-	    final JPopupMenu popupMenu = new JPopupMenu();	    
-	    JMenuItem rename = new JMenuItem("Rename");	   
-	    JMenuItem save = new JMenuItem("Save as . . .");
-	    popupMenu.add(rename);
-	    popupMenu.add(save);
 	    	    	    
+	   
+	    final JPopupMenu popupMenu = new JPopupMenu();	    	   
+	    JMenuItem save = new JMenuItem("Save as...");
+	    popupMenu.add(save);
+	    
 	    list.addMouseListener(new MouseAdapter() {
-	         public void mouseClicked(java.awt.event.MouseEvent me) {
-	            if (SwingUtilities.isRightMouseButton(me)    // if right mouse button clicked
-	                  && !list.isSelectionEmpty()            // and list selection is not empty
-	                  && list.locationToIndex(me.getPoint()) // and clicked point is
-	                  == list.getSelectedIndex()) {      	 // inside selected item bounds
-	               popupMenu.show(list, me.getX(), me.getY());
-	            }
-	            
-	         }
-	      });
+	        public void mouseClicked(java.awt.event.MouseEvent me) {
+	        // if right mouse button clicked (or me.isPopupTrigger())
+	        if (SwingUtilities.isRightMouseButton(me)
+	        && !list.isSelectionEmpty()
+	        && list.locationToIndex(me.getPoint())
+	        == list.getSelectedIndex()) {
+	        popupMenu.show(list, me.getX(), me.getY());
+	        			}
+	        		}
+	    		}
+	        );
+	    save.addActionListener(this);	    
+	    
 	    
 	    deselectButton.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	        	
 	        	int index = list.getSelectedIndex(); 		// get item number
-	        	
+	        		        			        	
 	        	for (int i = 0; i <= 511; i++) {               
             		matrixArray[i][index+1] = matrix[i]; 		            		
 				}
@@ -279,6 +281,8 @@ public class GUI extends JFrame implements ActionListener {
 	        	list.clearSelection();
 	        	list2.clearSelection();
 	        	list3.clearSelection();
+	        	MatrixInit();
+		        EbeneUpdate();
 	        		        	
 	        }
 	      });
@@ -288,7 +292,10 @@ public class GUI extends JFrame implements ActionListener {
             public void valueChanged(ListSelectionEvent arg0) {
                 if (!arg0.getValueIsAdjusting()) { 
                 	              	                	
-                	int index = list.getSelectedIndex(); 					// get item number                								
+                	int index = list.getSelectedIndex(); 					// get item number  
+                	list2.clearSelection();
+    	        	list3.clearSelection();
+    	        	
                			for (int i = 0; i <= 511; i++) {               
                         		matrix[i] = matrixArray[i][index+1]; 		                      		
         					}
@@ -303,6 +310,8 @@ public class GUI extends JFrame implements ActionListener {
                 if (!arg0.getValueIsAdjusting()) { 
                 	              	                	
                 	int index = list2.getSelectedIndex(); 		// get item number
+                	list.clearSelection();
+    	        	list3.clearSelection();
                 	
                 	for (int i = 0; i <= 511; i++) {               
                 		matrix[i] = matrixArray[i][index+1]; 		
@@ -320,6 +329,8 @@ public class GUI extends JFrame implements ActionListener {
                 if (!arg0.getValueIsAdjusting()) { 
                 	              	                	
                 	int index = list3.getSelectedIndex(); 		// get item number
+                	list.clearSelection();
+    	        	list2.clearSelection();
                 	
                 	for (int i = 0; i <= 511; i++) {               
                 		matrix[i] = matrixArray[i][index+1]; 		
@@ -338,8 +349,9 @@ public class GUI extends JFrame implements ActionListener {
 	        	
 	        	for (int j = 0; j <= 511; j++) {
 	        		matrixArray[j][frameNummer] = matrix[j]; 	//die jetzige matrix wird in ein weiteres Array gespewichert und kann immer wieder abgerufen werden. 
-				}	      
-	          model.addElement("Frame " + frameNummer);
+				}	
+	        	
+	          model.addElement("Frame " + frameNummer);	         
 	          
 	          MatrixInit();
 	          EbeneUpdate();
@@ -362,12 +374,10 @@ public class GUI extends JFrame implements ActionListener {
 		      });
 	      
 	      addToVideo.addActionListener(new ActionListener() {
-		        public void actionPerformed(ActionEvent e) {
-		        
-		        	Object selectedItem = list2.getSelectedValue();
-		        	if (selectedItem != null) {	
-		        	model3.addElement("Importieres Video  mit: " + selectedItem);  
-		        	}          
+		        public void actionPerformed(ActionEvent e) {		        		        	
+		        	videoZaehler++;
+		        	model3.addElement("Video" + videoZaehler);  
+		        	          
 		        }
 		      });
 	      
@@ -425,11 +435,11 @@ public class GUI extends JFrame implements ActionListener {
 		case "Undo reset":
 			matrix=undo.undoTempToMatrix();
 			EbeneUpdate();
-			break;
+			break;					
 			
-		case "Rename":
-			
-			break;
+		case "Save as...":
+			getdatafile.SaveArraytoFile(matrix);
+			break;	
 			
 		default:
 			break;
