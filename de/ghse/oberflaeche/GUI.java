@@ -203,7 +203,7 @@ public class GUI extends JFrame implements ActionListener {
        
     
     JButton addButton= new JButton("Save current frame");
-    addButton.setBounds(810,10,250,50);
+    addButton.setBounds(810,3,250,57);
     panel.add(addButton);
     addButton.addActionListener(this);
     addButton.setBackground(Color.white);
@@ -349,7 +349,7 @@ public class GUI extends JFrame implements ActionListener {
               
               if (selectedItem != null) {               //nur wenn ein item ausgewählt wurde  
                 model2.setSize(15);                                                                       
-                model2.set(index, "Importiertes " + selectedItem);
+                model2.set(index, "Importiertes Frame:   " + selectedItem);
           }                                       
             }
           });
@@ -396,7 +396,7 @@ public class GUI extends JFrame implements ActionListener {
             String newitem = null;
 
             if (text != null) {
-              newitem = text.trim();
+              newitem = text.trim();        
             } else
               return;
 
