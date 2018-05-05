@@ -39,7 +39,7 @@ public class GUI extends JFrame implements ActionListener {
   int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0;  
   private JButton[] buttons;
   private JLabel CurrentEbenetext;
-  private JButton output,ebeneup,ebenedown,reset,sframe;
+  private JButton output,ebeneup,ebenedown,reset,allOn;
   private boolean[] geklickt = new boolean[LEDS];
   private boolean[] matrix = new boolean[512];
   public boolean[] matrixTemp = new boolean[512];
@@ -180,6 +180,12 @@ public class GUI extends JFrame implements ActionListener {
     reset.setBackground(Color.white);
     panel.add(reset);
     
+    allOn = new JButton("All on");
+    allOn.setBounds(30,870,100,30);    
+    allOn.addActionListener(this);
+    allOn.setBackground(Color.white);
+    panel.add(allOn);
+    
     int displayEbene = CurrentEbene + 1;
     CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
     CurrentEbenetext.setBounds(480,820,100,50);
@@ -208,7 +214,7 @@ public class GUI extends JFrame implements ActionListener {
     addButton.addActionListener(this);
     addButton.setBackground(Color.white);
     
-      JButton addToCombiner = new JButton("Add to combiner");
+    JButton addToCombiner = new JButton("Add to combiner");
     addToCombiner.setBounds(810,340,250,30);
     addToCombiner.setBackground(Color.green);
     panel.add(addToCombiner);  
@@ -231,6 +237,14 @@ public class GUI extends JFrame implements ActionListener {
       popupMenu.add(delete);
       popupMenu.add(rename);
       popupMenu.add(save);
+      
+      final JPopupMenu popupMenu2 = new JPopupMenu();           
+      JMenuItem save2 = new JMenuItem("Save as...");
+      JMenuItem rename2 = new JMenuItem("Rename");
+      JMenuItem delete2 = new JMenuItem("Delete");
+      popupMenu2.add(delete2);
+      popupMenu2.add(rename2);
+      popupMenu2.add(save2);
            
       
       list.addMouseListener(new MouseAdapter() {
@@ -248,6 +262,22 @@ public class GUI extends JFrame implements ActionListener {
       save.addActionListener(this);
       rename.addActionListener(this);
       delete.addActionListener(this);
+      
+      list2.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(java.awt.event.MouseEvent me) {
+          // if right mouse button clicked (or me.isPopupTrigger())
+          if (SwingUtilities.isRightMouseButton(me)
+          && !list2.isSelectionEmpty()
+          && list2.locationToIndex(me.getPoint())
+          == list2.getSelectedIndex()) {
+          popupMenu2.show(list2, me.getX(), me.getY());
+                }
+              }
+          }
+          );
+      save2.addActionListener(this);
+      rename2.addActionListener(this);
+      delete2.addActionListener(this);
       
       
       deselectButton.addActionListener(new ActionListener() {
@@ -357,7 +387,8 @@ public class GUI extends JFrame implements ActionListener {
         addToVideo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {                          
               videoZaehler++;
-              model3.addElement("Video" + videoZaehler);  
+              model3.addElement("Video" + videoZaehler);
+              model2.removeAllElements();
                         
             }
           });
@@ -385,6 +416,28 @@ public class GUI extends JFrame implements ActionListener {
           }
         }); 
       
+      list2.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+              int index = list2.locationToIndex(e.getPoint());
+              Object item = model2.getElementAt(index);
+              String text = JOptionPane.showInputDialog("Rename item", item);
+              String newitem = "";
+              if (text != null)
+                newitem = text.trim();
+              else
+                return;
+
+              if (!newitem.isEmpty()) {
+                model2.remove(index);
+                model2.add(index, newitem);
+                ListSelectionModel selmodel = list2.getSelectionModel();
+                selmodel.setLeadSelectionIndex(index);
+              }
+            }
+          }
+        }); 
+      
       rename.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             ListSelectionModel selmodel = list.getSelectionModel();
@@ -406,6 +459,28 @@ public class GUI extends JFrame implements ActionListener {
             }
           }
         });
+      
+      rename2.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            ListSelectionModel selmodel = list2.getSelectionModel();
+            int index = selmodel.getMinSelectionIndex();
+            if (index == -1)
+              return;
+            Object item = model2.getElementAt(index);
+            String text = JOptionPane.showInputDialog("Rename frame", item);
+            String newitem = null;
+
+            if (text != null) {
+              newitem = text.trim();        
+            } else
+              return;
+
+            if (!newitem.isEmpty()) {
+              model2.remove(index);
+              model2.add(index, newitem);
+            }
+          }
+        });
         
       delete.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent event) {
@@ -416,6 +491,17 @@ public class GUI extends JFrame implements ActionListener {
           }
 
         });
+      
+      delete2.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            ListSelectionModel selmodel = list2.getSelectionModel();
+            int index = selmodel.getMinSelectionIndex();
+            if (index >= 0)
+              model2.remove(index);
+          }
+
+        });
+                
   } //ende initialize
  
   
@@ -445,6 +531,11 @@ public class GUI extends JFrame implements ActionListener {
     case "Save as...":
       getdatafile.SaveArraytoFile(matrix);
       break;
+      
+    case "All on":
+        MatrixAn();
+        EbeneUpdate();
+        break;  
                      
     default:
       break;
@@ -539,12 +630,15 @@ public class GUI extends JFrame implements ActionListener {
   }
   
   
-  void MatrixInit()
-  {
+  void MatrixInit(){
     for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
-      matrix[matrixsetup] = false;
-      
+      matrix[matrixsetup] = false;    
     }
   }
 
+  void MatrixAn(){
+	    for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
+	      matrix[matrixsetup] = true;    
+	    }
+	  }
 }
