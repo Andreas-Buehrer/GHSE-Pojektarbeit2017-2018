@@ -1,39 +1,36 @@
 package de.ghse.oberflaeche;
 
-import de.ghse.schnittstelle.SimpleDataSending;
-import de.ghse.steuerung.FileManager;
-import de.ghse.steuerung.Steuerung;
-import de.ghse.steuerung.Undo;
-import de.ghse.werkzeuge.Stoppuhr;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
-import javax.swing.event.ListSelectionListener;
-import com.sun.glass.events.MouseEvent;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import java.awt.Color;
-import java.awt.Component;
-import javax.swing.JMenuBar;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.MenuElement;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.JLabel;
-import javax.swing.JList;
+import javax.swing.event.ListSelectionListener;
+import de.ghse.schnittstelle.SimpleDataSending;
+import de.ghse.steuerung.FileManager;
+import de.ghse.steuerung.Steuerung;
+import de.ghse.steuerung.Undo;
+import de.ghse.werkzeuge.Stoppuhr;
 
 public class GUI extends JFrame implements ActionListener {
 
@@ -51,7 +48,10 @@ public class GUI extends JFrame implements ActionListener {
   public Boolean an_aus;
   private JFrame frame;
   public JTextField textField;
-  public JList list;  
+  public JList list;
+  final DefaultListModel model = new DefaultListModel();
+  final DefaultListModel model2 = new DefaultListModel(); 
+  final DefaultListModel model3 = new DefaultListModel(); 
   
   SimpleDataSending netsend = new SimpleDataSending();  //Konstruktoren
   FileManager getdatafile = new FileManager();    
@@ -185,22 +185,19 @@ public class GUI extends JFrame implements ActionListener {
     CurrentEbenetext.setBounds(480,820,100,50);
     panel.add(CurrentEbenetext);
         
-    
-    final DefaultListModel model = new DefaultListModel(); 
+       
     final JList list = new JList(model);    
-    list.setBounds(810,100,250,200);
+    list.setBounds(810,100,250,235);
     list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     panel.add(list);
-              
-    final DefaultListModel model2 = new DefaultListModel(); 
+                 
     final JList list2 = new JList(model2);    
-    list2.setBounds(810,375,250,200);
+    list2.setBounds(810,375,250,235);
     list2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     panel.add(list2);
               
-    final DefaultListModel model3 = new DefaultListModel(); 
     final JList list3 = new JList(model3);    
-    list3.setBounds(810,650,250,200);
+    list3.setBounds(810,650,250,235);
     list3.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     panel.add(list3);
        
@@ -220,36 +217,21 @@ public class GUI extends JFrame implements ActionListener {
     addToVideo.setBounds(810,615,250,30);
     addToVideo.setBackground(Color.green);
     panel.add(addToVideo);
-    
-    JButton saveVid = new JButton("Save video as . . .");
-    saveVid.setBounds(810,890,250,30);
-    saveVid.setBackground(Color.white);
-    panel.add(saveVid);
-              
-      JButton removeButton = new JButton("Remove frame");
-      removeButton.setBounds(810,305,250,30);
-      removeButton.setBackground(Color.red);
-      panel.add(removeButton);
-      
-      JButton removeButton2 = new JButton("Remove element");
-      removeButton2.setBounds(810,580,250,30);
-      removeButton2.setBackground(Color.red);
-      panel.add(removeButton2);
-      
-      JButton removeButton3 = new JButton("Remove video");
-      removeButton3.setBounds(810,855,250,30);
-      removeButton3.setBackground(Color.red);
-      panel.add(removeButton3);
-      
-      JButton deselectButton = new JButton("Save & Deselect item");
-      deselectButton.setBounds(810,65,250,30);
-      deselectButton.setBackground(Color.gray);
-      panel.add(deselectButton);
+                               
+    JButton deselectButton = new JButton("Save & Deselect item");
+    deselectButton.setBounds(810,65,250,30);
+    deselectButton.setBackground(Color.gray);
+    panel.add(deselectButton);
                   
      
       final JPopupMenu popupMenu = new JPopupMenu();           
       JMenuItem save = new JMenuItem("Save as...");
+      JMenuItem rename = new JMenuItem("Rename");
+      JMenuItem delete = new JMenuItem("Delete");
+      popupMenu.add(delete);
+      popupMenu.add(rename);
       popupMenu.add(save);
+           
       
       list.addMouseListener(new MouseAdapter() {
           public void mouseClicked(java.awt.event.MouseEvent me) {
@@ -263,7 +245,9 @@ public class GUI extends JFrame implements ActionListener {
               }
           }
           );
-      save.addActionListener(this);     
+      save.addActionListener(this);
+      rename.addActionListener(this);
+      delete.addActionListener(this);
       
       
       deselectButton.addActionListener(new ActionListener() {
@@ -378,39 +362,63 @@ public class GUI extends JFrame implements ActionListener {
             }
           });
         
-        saveVid.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            
-              Object selectedItem = list3.getSelectedValue();                     
-                                          
-            }
-          });
-               
-        removeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                                      
-              model.remove(list.getSelectedIndex());                                                                              
-            }                     
-          });
-          
-      removeButton2.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-                                        
-            model2.remove(list2.getSelectedIndex());                                                                              
-          }                     
-        });
-          
-      removeButton3.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-                                        
-              model3.remove(list3.getSelectedIndex());                                                                              
-          }                     
-        });
-        
-                                
-        
-  } //ende initialize
+                                                
+      list.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+              int index = list.locationToIndex(e.getPoint());
+              Object item = model.getElementAt(index);
+              String text = JOptionPane.showInputDialog("Rename item", item);
+              String newitem = "";
+              if (text != null)
+                newitem = text.trim();
+              else
+                return;
 
+              if (!newitem.isEmpty()) {
+                model.remove(index);
+                model.add(index, newitem);
+                ListSelectionModel selmodel = list.getSelectionModel();
+                selmodel.setLeadSelectionIndex(index);
+              }
+            }
+          }
+        }); 
+      
+      rename.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            ListSelectionModel selmodel = list.getSelectionModel();
+            int index = selmodel.getMinSelectionIndex();
+            if (index == -1)
+              return;
+            Object item = model.getElementAt(index);
+            String text = JOptionPane.showInputDialog("Rename frame", item);
+            String newitem = null;
+
+            if (text != null) {
+              newitem = text.trim();
+            } else
+              return;
+
+            if (!newitem.isEmpty()) {
+              model.remove(index);
+              model.add(index, newitem);
+            }
+          }
+        });
+        
+      delete.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            ListSelectionModel selmodel = list.getSelectionModel();
+            int index = selmodel.getMinSelectionIndex();
+            if (index >= 0)
+              model.remove(index);
+          }
+
+        });
+  } //ende initialize
+ 
+  
   public void actionPerformed(ActionEvent e) {        
   
     String quelle = e.getActionCommand();   
@@ -436,8 +444,8 @@ public class GUI extends JFrame implements ActionListener {
       
     case "Save as...":
       getdatafile.SaveArraytoFile(matrix);
-      break;  
-      
+      break;
+                     
     default:
       break;
     }
