@@ -25,7 +25,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -39,7 +38,7 @@ public class GUI extends JFrame implements ActionListener {
 
   ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
   ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png"); 
-  int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0,sliderValue,zaehler=0;  
+  int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0,zaehler=0;  
   private JButton[] buttons;
   private JLabel CurrentEbenetext,sliderLabel;
   private JButton output,ebeneup,ebenedown,reset,allOn;
@@ -47,7 +46,9 @@ public class GUI extends JFrame implements ActionListener {
   private boolean[] matrix = new boolean[512];
   public boolean[] matrixTemp = new boolean[512];
   public boolean[] matrixAnzeige = new boolean[512];
-  public boolean[][] matrixArray = new boolean[512][15];  //max 15 Frames können gespeichert werden   
+  public boolean[] IndexInVideo = new boolean[15];			//mehr als 15 frames wird ein user für ein video nicht brauchen
+  public boolean[][] matrixArray = new boolean[512][15];    //max 15 Frames können gespeichert werden
+  public int[] TimePerFrame = new int[15];					//mehr als 15 frames wird ein user für ein video nicht brauchen
   public Boolean an_aus;
   private JFrame frame;
   public JTextField textField;
@@ -60,9 +61,11 @@ public class GUI extends JFrame implements ActionListener {
   final JList list2 = new JList(model2); 
   final JList list3 = new JList(model3); 
   
+  final JSlider slider = new JSlider(JSlider.HORIZONTAL,42,10000,1000);		//geht von 42-10000 und hat den standartwert 1000  ,  global um slider.getValue() machen zu können
+  
   SimpleDataSending netsend = new SimpleDataSending();  //Konstruktoren
   FileManager getdatafile = new FileManager();    
-  Steuerung obj = new Steuerung();
+  Steuerung str = new Steuerung();
   Stoppuhr time = new Stoppuhr();
   Undo undo = new Undo(); 
     
@@ -148,14 +151,11 @@ public class GUI extends JFrame implements ActionListener {
                                
     buttons = new JButton[LEDS];
     
-    for (int i = 0; i < buttons.length; i++) {
-      
-      String LED = String.valueOf(i + 1);      // +1 Damit die Buttons von 1-64 gezaehlt werden
-      JButton button = new JButton(LED,grau);     
-      
-      button.setVerticalTextPosition(SwingConstants.TOP);
-      button.addActionListener(this);
-      button.setMnemonic(LED.charAt(0));
+    for (int i = 0; i < buttons.length; i++) { 
+    	
+      String LED = String.valueOf(i + 1);      // +1 Damit die Buttons von 1-64 gezaehlt werden und nicht von 0-63
+      JButton button = new JButton(LED,grau);               
+      button.addActionListener(this);     
       buttons[i] = button;
       buttonPanel.add(buttons[i]);
     }
@@ -195,8 +195,8 @@ public class GUI extends JFrame implements ActionListener {
     CurrentEbenetext.setBounds(480,820,100,50);
     panel.add(CurrentEbenetext);
     
-    sliderLabel = new JLabel("Anzeigedauer: " + sliderValue );
-    sliderLabel.setBounds(480,920,100,50);
+    sliderLabel = new JLabel("Anzeigedauer: " + slider.getValue() + "ms");
+    sliderLabel.setBounds(480,920,300,50);
     panel.add(sliderLabel);
             
     list.setBounds(810,100,250,235);
@@ -215,7 +215,7 @@ public class GUI extends JFrame implements ActionListener {
     JButton addButton= new JButton("Save current frame");
     addButton.setBounds(810,3,250,57);
     addButton.addActionListener(this);
-    addButton.setBackground(Color.white);
+    addButton.setBackground(Color.green);
     panel.add(addButton);
     
     JButton addToCombiner = new JButton("Add");
@@ -230,7 +230,7 @@ public class GUI extends JFrame implements ActionListener {
                                
     JButton deselectButton = new JButton("Save & Deselect item");
     deselectButton.setBounds(810,65,250,30);
-    deselectButton.setBackground(Color.gray);
+    deselectButton.setBackground(Color.white);
     panel.add(deselectButton);
                   
      
@@ -257,71 +257,41 @@ public class GUI extends JFrame implements ActionListener {
     popupMenu3.add(delete3);
     popupMenu3.add(rename3);
     popupMenu3.add(save3);
-       
-    final JSlider slider = new JSlider(JSlider.HORIZONTAL,42,10000,3000);
+    
+    save.addActionListener(this);			//action listener für alle popupMenu items hinzugefügt
+    rename.addActionListener(this);
+    delete.addActionListener(this);
+    
+    save2.addActionListener(this);
+    rename2.addActionListener(this);
+    delete2.addActionListener(this);
+    
+    save3.addActionListener(this);
+    rename3.addActionListener(this);
+    delete3.addActionListener(this);
+
+    
     slider.setMajorTickSpacing(1000);
     slider.setPaintTicks(true);
-    slider.setBounds(700,900,500,20);
+    slider.setBounds(700,900,500,50);
     panel.add(slider);
       
       slider.addChangeListener(new ChangeListener() {
-          public void stateChanged(ChangeEvent e) { 
-        	sliderValue = slider.getValue();  
-            System.out.println("JSlider's current value = " + slider.getValue());
+          public void stateChanged(ChangeEvent e) {        	  
+            sliderLabel.setText("Anzeigedauer: " + slider.getValue() + "ms");
           }
         });
-                
-      list.addMouseListener(new MouseAdapter() {
-          public void mouseClicked(java.awt.event.MouseEvent me) {
-          // if right mouse button clicked
-          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
-          && !list.isSelectionEmpty()						//UND wenn NICHT nichts angeklickt ist
-          && list.locationToIndex(me.getPoint())			//UND der ursprung des klicks 
-          == list.getSelectedIndex()) {						//dem ausgewählten item enspricht
-          popupMenu.show(list, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
-                }
-              }
+         
+      deselectButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {        	  	        	  	
+        	  	       	  
+        	  int index = list.getSelectedIndex();   			// klick kam von welchem item?   	  
+        	  TimePerFrame[index+1]=slider.getValue();			//zeit des sliders wird in array gespeichert
+              System.out.println(TimePerFrame[index+1]);
+              
+              SaveAndDeselectButtons(index);
           }
-          );
-            
-      list2.addMouseListener(new MouseAdapter() {
-          public void mouseClicked(java.awt.event.MouseEvent me) {
-          // if right mouse button clicked 
-          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
-          && !list2.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
-          && list2.locationToIndex(me.getPoint())			//UND der ursprung des klicks 
-          == list2.getSelectedIndex()) {					//dem ausgewählten item enspricht
-          popupMenu2.show(list2, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
-                }
-              }
-          }
-          );    
-      
-      list3.addMouseListener(new MouseAdapter() {
-          public void mouseClicked(java.awt.event.MouseEvent me) {
-          // if right mouse button clicked 
-          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
-          && !list3.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
-          && list3.locationToIndex(me.getPoint())			//UND der ursprung des klicks
-          == list3.getSelectedIndex()) {					//dem ausgewählten item enspricht
-          popupMenu3.show(list3, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
-                }
-              }
-          }
-          );
-      
-      save.addActionListener(this);			//action listener für alle popupMenu items hinzugefügt
-      rename.addActionListener(this);
-      delete.addActionListener(this);
-      
-      save2.addActionListener(this);
-      rename2.addActionListener(this);
-      delete2.addActionListener(this);
-      
-      save3.addActionListener(this);
-      rename3.addActionListener(this);
-      delete3.addActionListener(this);
-      
+        });
       
       addToCombiner.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -335,16 +305,26 @@ public class GUI extends JFrame implements ActionListener {
         }                                       
           }
         });
+          
+      for (int i = 0; i <= 14; i++) {
+    	  IndexInVideo[i]=false;		//kein frame gehört bisher in das nächste video rein
+	  }
       
       addToVideo.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-        	  	        	  	
+          public void actionPerformed(ActionEvent e) {        	  	        	  	
         	  	zaehler++;       	  	                                                                       
           		model3.addElement("Video " + zaehler);
-        	              
+          		
+          		for (int i = 0; i <= 14; i++) {
+          			if (model2.getElementAt(i) != null) {		//geht jedes tabellenitem durch und guckt ob es einen inhalt hat, wenn ja ....
+          				IndexInVideo[i+1]=true;					//markiert welche frames in das video kommen werden						
+					}
+          			
+				}
+          		
           }
         });
-           
+                                          
       list.addListSelectionListener(new ListSelectionListener() {         //wenn ein item in liste 1 angeklickt wird
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
@@ -365,9 +345,10 @@ public class GUI extends JFrame implements ActionListener {
       list2.addListSelectionListener(new ListSelectionListener() {		 //wenn ein item in liste 2 angeklickt wird
             @Override
             public void valueChanged(ListSelectionEvent arg0) {
+            	
+            	int index = list2.getSelectedIndex();    		    //soll geschaut werden von wo der klick kam
                 if (!arg0.getValueIsAdjusting()) { 					//wenn der rückgabewert des events =true ist
-                                                    		
-                	int index = list2.getSelectedIndex();    		    //soll geschaut werden von wo der klick kam
+                                                    		               	
                 	list.clearSelection();							//und macht, dass das item in der liste nichtmehr blau markiert ist
                 	list3.clearSelection();							//und macht, dass das item in der liste nichtmehr blau markiert ist
                   
@@ -376,6 +357,7 @@ public class GUI extends JFrame implements ActionListener {
                 	}
                 	EbeneUpdate();									//GUI aktualisieren                 
                 	}
+                
             }
         });
       
@@ -387,16 +369,35 @@ public class GUI extends JFrame implements ActionListener {
                 	int index = list3.getSelectedIndex();    			//soll geschaut werden von wo der klick kam
                 	list.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
                 	list2.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
-                  
-                	for (int i = 0; i <= 511; i++) {               
-                		matrix[i] = matrixArray[i][index+1];                        
-                	}
+                	int indexA[] = new int[15];
+                	int indexZaehler=0;
+                	int indexZaehler2=indexZaehler;
+                	
+                	for (int i = 0; i <= 13; i++) {
+						if (IndexInVideo[i+1]=true) {
+							indexZaehler++;
+							indexA[indexZaehler]=index+1;	//enthält alle index die ins video kommen müssen
+						}
+					}
+                                              	                	
+                	for (int i = 0; i <= 511; i++) {
+                		for (int j = 0; j <= indexZaehler; j++) {
+                			try {
+								Thread.sleep(TimePerFrame[j], 0);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}                			
+                			for (indexZaehler2  = 0;  indexZaehler2<= indexZaehler; indexZaehler2++) {                				
+                				matrix[i] = matrixArray[i][indexA[indexZaehler2]]; 
+							}               			    
+						}                		           		
+                	}					                	
                 	EbeneUpdate();									 //GUI aktualisieren                 
                 	}
             }
         });
-                    
-                                                                             
+                                                                                                
       list.addMouseListener(new MouseAdapter() {								//frame lässt sich per doppelklick "renamen"   in liste 1
           public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
@@ -462,6 +463,45 @@ public class GUI extends JFrame implements ActionListener {
             	}
           }
         }); 
+      
+      list.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(java.awt.event.MouseEvent me) {
+          // if right mouse button clicked
+          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
+          && !list.isSelectionEmpty()						//UND wenn NICHT nichts angeklickt ist
+          && list.locationToIndex(me.getPoint())			//UND der ursprung des klicks 
+          == list.getSelectedIndex()) {						//dem ausgewählten item enspricht
+          popupMenu.show(list, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
+                }
+              }
+          }
+          );
+            
+      list2.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(java.awt.event.MouseEvent me) {
+          // if right mouse button clicked 
+          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
+          && !list2.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
+          && list2.locationToIndex(me.getPoint())			//UND der ursprung des klicks 
+          == list2.getSelectedIndex()) {					//dem ausgewählten item enspricht
+          popupMenu2.show(list2, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
+                }
+              }
+          }
+          );    
+      
+      list3.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(java.awt.event.MouseEvent me) {
+          // if right mouse button clicked 
+          if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
+          && !list3.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
+          && list3.locationToIndex(me.getPoint())			//UND der ursprung des klicks
+          == list3.getSelectedIndex()) {					//dem ausgewählten item enspricht
+          popupMenu3.show(list3, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
+                }
+              }
+          }
+          );
       
       rename.addActionListener(new ActionListener() {					//action listener für popupmenu item "rename" in liste 1
           public void actionPerformed(ActionEvent e) {
@@ -642,41 +682,41 @@ public class GUI extends JFrame implements ActionListener {
           MatrixAn();							 //alle LEDs an
           EbeneUpdate();						 //GUI aktualisieren
           break;
-        
-      case "Save & Deselect item":   
-    	  int index = list.getSelectedIndex();   			 // klick kam von welchem item?
-        
-          for (int i = 0; i <= 511; i++) {               
-              matrixArray[i][index+1] = matrix[i];    	// speichere angeklicktes frame in hilfsArray ab               
-          }
-        
-          list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
-          list2.clearSelection();
-          list3.clearSelection();
-          MatrixAus();					//alles LEDs aus
-          EbeneUpdate();					//GUI aktualisieren
-    	  break;
-    	
+               	
       case "Save current frame":
-      	frameNummer++;                       
-        for (int j = 0; j <= 511; j++) {
-          matrixArray[j][frameNummer] = matrix[j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
-         }            
-        model.addElement("Frame " + frameNummer);  //zur liste 3 ein neues item mit dem namen Frame + FrameNummer hinzufügen                   
-        MatrixAus();							   //Alle LEDs aus
-        EbeneUpdate();  						   //GUI aktualisieren
-        break;
-    
+      	  SaveCurrentFrame();						   //GUI aktualisieren
+          break;
+     
         
-    default:
-      break;
+      default:
+          break;
     }
       
   
     ButtonState(geklickt[zahl], zahl);  //alle LEDs aktualisieren
   }
 
+void SaveAndDeselectButtons(int index) {	
+	for (int i = 0; i <= 511; i++) {               
+        matrixArray[i][index+1] = matrix[i];    	// speichere angeklicktes frame in hilfsArray ab               
+    }
+  
+    list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
+    list2.clearSelection();
+    list3.clearSelection();
+    MatrixAus();					//alles LEDs aus
+    EbeneUpdate();					//GUI aktualisieren
+}
 
+void SaveCurrentFrame() {
+	frameNummer++;                       
+    for (int j = 0; j <= 511; j++) {
+      matrixArray[j][frameNummer] = matrix[j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
+     }            
+    model.addElement("Frame " + frameNummer);  //zur liste 3 ein neues item mit dem namen Frame + FrameNummer hinzufügen                   
+    MatrixAus();							   //Alle LEDs aus
+    EbeneUpdate();  
+}
 
   void ButtonState(boolean state, int button_nr) { // Updated Button State Array
     int CurrentOffset = (CurrentEbene) * 64;
