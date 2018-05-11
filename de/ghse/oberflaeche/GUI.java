@@ -302,7 +302,12 @@ public class GUI extends JFrame implements ActionListener {
             if (selectedItem != null) {               //nur wenn ein item ausgewählt wurde  
             	model2.setSize(15);                                                                       
             	model2.set(index, "Importiertes Frame:   " + selectedItem);
-        }                                       
+            	SaveAndDeselectButtons(index);
+            } 
+            
+            list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
+            list2.clearSelection();
+            list3.clearSelection();
           }
         });
           
@@ -321,6 +326,7 @@ public class GUI extends JFrame implements ActionListener {
 					}
           			
 				}
+          	
           		
           }
         });
@@ -383,7 +389,7 @@ public class GUI extends JFrame implements ActionListener {
                 	for (int i = 0; i <= 511; i++) {
                 		for (int j = 0; j <= indexZaehler; j++) {
                 			try {
-								Thread.sleep(TimePerFrame[j], 0);
+								Thread.sleep(TimePerFrame[j]);								
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
