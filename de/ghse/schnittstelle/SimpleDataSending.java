@@ -12,6 +12,7 @@ public class SimpleDataSending {
 	public static void connectToServer(String ipadresse,String port) {
 		try {
 			Socket clientSocket = new Socket("192.168.2.5", 23);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
