@@ -42,7 +42,7 @@ public class GUI extends JFrame implements ActionListener {
   private JLabel CurrentEbenetext,sliderLabel;
   private JButton output,ebeneup,ebenedown,reset,allOn;
   private boolean[] geklickt = new boolean[LEDS];
-  private boolean[] matrix = new boolean[512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor Allem mit EbeneUpdate();
+  private boolean[] matrix = new boolean[512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor allem mit EbeneUpdate();
   public boolean[] matrixTemp = new boolean[512];
   public boolean[] matrixAnzeige = new boolean[512];		
   public boolean[] IndexInVideo = new boolean[15];			//mehr als 15 frames wird ein user für ein video nicht brauchen
@@ -51,6 +51,7 @@ public class GUI extends JFrame implements ActionListener {
   public Boolean an_aus;
   private JFrame frame;
   public JTextField textField;
+  public String ip,port;
   
   final DefaultListModel model = new DefaultListModel();	//Initialisierung der DefaultListModel muss global geschehen, damit man von ueberall Zugriff darauf hat
   final DefaultListModel model2 = new DefaultListModel(); 
@@ -727,10 +728,15 @@ class MeinZeichenPanel extends JPanel{
         break;
       
       case "Connect":
-    	  JFrame connectFrame = new JFrame();  	   
-    	  String ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    
-    	  JFrame connectFrame2 = new JFrame();  	   
-    	  String port = JOptionPane.showInputDialog(connectFrame2, "Enter port");    
+    	  if (ip==null && port==null) {												//wenn in den variablen kein Inhalt ist...
+    		  JFrame connectFrame = new JFrame();  	   
+        	  ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    
+        	  JFrame connectFrame2 = new JFrame();  	   
+        	  port = JOptionPane.showInputDialog(connectFrame2, "Enter port");    
+		}else {
+			
+		}
+    	  
           break;   
       case "Disconnect":
     	    
