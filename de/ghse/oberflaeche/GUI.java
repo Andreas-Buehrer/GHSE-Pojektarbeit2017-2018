@@ -37,16 +37,14 @@ import de.ghse.werkzeuge.Stoppuhr;
 
 public class GUI extends JFrame implements ActionListener {
 
-  ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");
-  ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png"); 
   int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0,zaehler=0;  
   private JButton[] buttons;
   private JLabel CurrentEbenetext,sliderLabel;
   private JButton output,ebeneup,ebenedown,reset,allOn;
   private boolean[] geklickt = new boolean[LEDS];
-  private boolean[] matrix = new boolean[512];
+  private boolean[] matrix = new boolean[512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor Allem mit EbeneUpdate();
   public boolean[] matrixTemp = new boolean[512];
-  public boolean[] matrixAnzeige = new boolean[512];
+  public boolean[] matrixAnzeige = new boolean[512];		
   public boolean[] IndexInVideo = new boolean[15];			//mehr als 15 frames wird ein user für ein video nicht brauchen
   public boolean[][] matrixArray = new boolean[512][15];    //max 15 Frames können gespeichert werden
   public int[] TimePerFrame = new int[15];					//mehr als 15 frames wird ein user für ein video nicht brauchen
@@ -54,17 +52,20 @@ public class GUI extends JFrame implements ActionListener {
   private JFrame frame;
   public JTextField textField;
   
-  final DefaultListModel model = new DefaultListModel();
+  final DefaultListModel model = new DefaultListModel();	//Initialisierung der DefaultListModel muss global geschehen, damit man von ueberall Zugriff darauf hat
   final DefaultListModel model2 = new DefaultListModel(); 
   final DefaultListModel model3 = new DefaultListModel(); 
   
-  final JList list = new JList(model);
+  final JList list = new JList(model);						//Initialisierung der JLists muss global geschehen, damit man von ueberall Zugriff darauf hat
   final JList list2 = new JList(model2); 
   final JList list3 = new JList(model3); 
   
   final JSlider slider = new JSlider(JSlider.HORIZONTAL,42,10000,1000);		//geht von 42-10000 und hat den standartwert 1000  ,  global um slider.getValue() machen zu können
   
-  SimpleDataSending netsend = new SimpleDataSending();  //Konstruktoren
+  ImageIcon blau = new ImageIcon("pictures/BlauerPunkt.png");		//Bild blau steht fuer einen blauen Button (=LED an)
+  ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png"); 		//Bild grau steht fuer einen grauen Button (=LED aus)
+  
+  SimpleDataSending netsend = new SimpleDataSending(); 	 			//Konstruktoren
   FileManager getdatafile = new FileManager();
   MeinZeichenPanel panel = new MeinZeichenPanel();
   Steuerung str = new Steuerung();
@@ -76,11 +77,11 @@ public class GUI extends JFrame implements ActionListener {
    */
 
   public static void main(String[] args) {    
-    EventQueue.invokeLater(new Runnable() {
+    EventQueue.invokeLater(new Runnable() {		//Ist wichtig, damit das GUI auf Klicks weiter antworten kann
       public void run() {
         try {
           GUI window = new GUI();
-          window.frame.setVisible(true);
+          window.frame.setVisible(true);		//Es muss hier hier sichtbar (setVisible) gemacht werden, da es von ueberall sonst schwere Fehler gibt
         } catch (Exception e) {
           e.printStackTrace();	//nichts tun
         }
@@ -96,85 +97,87 @@ public class GUI extends JFrame implements ActionListener {
   }
 
   /**
-   * Initialize the contents of the frame.
+   * Initialisiere den Inhalt des Frames
    */
   private void initialize() {
     
-    MatrixAus();	//alle LEDs aus um Bugs zu vermeiden
-    
-    int frameWidth = 1920;
-    int frameHeight = 1042;
-
-    frame = new JFrame();
-    frame.setSize(frameWidth, frameHeight);
+    MatrixAus();							  //alle LEDs AUS um Bugs zu vermeiden
+     
+    frame = new JFrame();				      //Fenster erstellen								
+    frame.setSize(1920, 1042);				  //mit der Groesse 1920 x 1042 (Ca. Vollbild)
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);     
 
-    JPanel panel = new JPanel();              //untendrunter
-    frame.getContentPane().add(panel);
-    panel.setLayout(null);
+    JPanel panel = new JPanel();              //Großes Panel, auf dem alle anderen Panels und Buttons etc. aufbauen
+    JPanel buttonPanel = new JPanel();        //nur für die 8x8 buttons
+    frame.getContentPane().add(panel);		  //Panel zum Frame hinzugefügt
+    panel.setLayout(null);					  //Kein Layout --> Direkte Koordinatenangabe der Items benötigt
         
-    JPanel buttonPanel = new JPanel();            //nur für die 8x8 buttons
-    buttonPanel.setBounds(0, 0, 800, 800);
-    buttonPanel.setLayout(new GridLayout(8, 8, -1, -1));	
-    panel.add(buttonPanel);
-           
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    
-// 																			Menubar    
-    JMenuBar menuBar = new JMenuBar();
-    frame.setJMenuBar(menuBar);
-
-    JMenu file = new JMenu("File");
-    JMenu Edit = new JMenu("Edit");
-    JMenu connect1 = new JMenu("Connect");
-    menuBar.add(file);      
-    menuBar.add(Edit);       
-    menuBar.add(connect1);
     
-    JMenuItem connect2 = new JMenuItem("Connect");
-    connect1.add(connect2);
-    connect2.addActionListener(this);
-
-    JMenuItem OpenFile = new JMenuItem("Open File . . .");
-    ImageIcon openFile = new ImageIcon("pictures/openFile.png");
-    OpenFile.setIcon(openFile);
-    file.add(OpenFile);
-    OpenFile.addActionListener(this);
-
-    JMenuItem SaveAs = new JMenuItem("Save as . . .");
-    ImageIcon saveAs = new ImageIcon("pictures/saveAs.png");
-    SaveAs.setIcon(saveAs);
-    file.add(SaveAs);
-    SaveAs.addActionListener(this);
-
-    JMenuItem Exit = new JMenuItem("Exit");
-    file.add(Exit);
-    Exit.addActionListener(this);
-        
-    JMenuItem Undo = new JMenuItem("Undo: Clear all");
-    ImageIcon undo = new ImageIcon("pictures/undo.png");
-    Undo.setIcon(undo);
-    Edit.add(Undo);
-    Undo.addActionListener(this);
-                               
-    buttons = new JButton[LEDS];
+    buttonPanel.setBounds(0, 0, 800, 800);	 				 //Groesse des Panels für die Buttons festlegen
+    buttonPanel.setLayout(new GridLayout(8, 8, -1, -1));	 //Als Layout natuerlich das GridLayout, welches ein 8x8 "Schachfeld" macht. Zwischen den Quadraten ist die Lücke -1, also keine Lücke
+    panel.add(buttonPanel);									 //Das ButtonPanel auf das grosse panel setzen		
+     
+    buttons = new JButton[LEDS];			   //Initialisierung eines Button-Arrays
     
-    for (int i = 0; i < buttons.length; i++) { 
-    	
+    for (int i = 0; i < buttons.length; i++) { //alle 64 Buttons entwerfen und auf das Panel setzen   	
       String LED = String.valueOf(i + 1);      // +1 Damit die Buttons von 1-64 gezaehlt werden und nicht von 0-63
-      JButton button = new JButton(LED,grau);               
-      button.addActionListener(this);     
+      JButton button = new JButton(LED,grau);  //64 Buttons mit dem Parameter LED (=Nummer des Buttons) und das Bild "grau" wird aufgesetzt             
+      button.addActionListener(this);          //Action Listener zu jedem Button hinzufügen 
       buttons[i] = button;
       buttonPanel.add(buttons[i]);
     }
 
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//																						Buttons    
-    reset= new JButton("Clear all");
-    reset.setBounds(33,900,150,60);
-    reset.setFont (reset.getFont ().deriveFont (25.0f));
-    reset.addActionListener(this);
-    reset.setBackground(Color.red);
-    panel.add(reset);
+    
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    Menubar
+   
+    JMenuBar menuBar = new JMenuBar();								//Menubar deklariert
+    frame.setJMenuBar(menuBar);										//Menubar zum Frame hinzugefügt
+
+    JMenu file = new JMenu("File");									//Neues Menu initialisiert
+    JMenu Edit = new JMenu("Edit");									//Neues Menu initialisiert	
+    JMenu connection = new JMenu("Connection");						//Neues Menu initialisiert
+    
+    menuBar.add(file);      										//Menu zur Menubar hinzugefügt
+    menuBar.add(Edit);       										
+    menuBar.add(connection);										
+    
+    JMenuItem connect2 = new JMenuItem("Connect");					//MenuItem deklariert
+    JMenuItem disconnect = new JMenuItem("Disconnect");				
+    JMenuItem OpenFile = new JMenuItem("Open File . . .");			
+    JMenuItem SaveAs = new JMenuItem("Save as . . .");				
+    JMenuItem Exit = new JMenuItem("Exit");							
+    JMenuItem Undo = new JMenuItem("Undo: Clear all");				
+    	
+    ImageIcon openFile = new ImageIcon("pictures/openFile.png");	//Neues Image deklariert
+    ImageIcon saveAs = new ImageIcon("pictures/saveAs.png");			
+    ImageIcon undo = new ImageIcon("pictures/undo.png");			
+    
+    OpenFile.setIcon(openFile);										//Image zum JMenuItem zugefügt
+    SaveAs.setIcon(saveAs); 										
+    Undo.setIcon(undo);												
+    
+    connection.add(connect2);  										//MenuItems werden den Menus zugewiesen
+    connection.add(disconnect);
+    file.add(OpenFile);
+    file.add(SaveAs);
+    file.add(Exit);
+    Edit.add(Undo);
+    
+    disconnect.addActionListener(this);								//Jedes MenuItem bekommt einen ActionListener
+    connect2.addActionListener(this);                
+    OpenFile.addActionListener(this);            
+    SaveAs.addActionListener(this);      
+    Exit.addActionListener(this);                    
+    Undo.addActionListener(this);
+             
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX		Buttons
+   
+    reset= new JButton("Clear all");						//Neuer Button mit der Beschriftung "Clear all"
+    reset.setBounds(33,900,150,60);							//Position: X=33 Y=900 		Breite=150  Hoehe=60
+    reset.setFont (reset.getFont ().deriveFont (25.0f));	//Schriftart und Groesse aendern
+    reset.addActionListener(this);							//ActionListener hinzufuegen
+    reset.setBackground(Color.red);							//Hintergrundfarbe auf rot 
+    panel.add(reset);										//Zum panel hinzufuegen
     
     allOn = new JButton("All on");
     allOn.setBounds(33,830,150,60);
@@ -205,18 +208,18 @@ public class GUI extends JFrame implements ActionListener {
     panel.add(output);
     
     int displayEbene = CurrentEbene + 1;
-    CurrentEbenetext = new JLabel("Row = " + displayEbene);
-    CurrentEbenetext.setFont (CurrentEbenetext.getFont ().deriveFont (32.0f));
+    CurrentEbenetext = new JLabel("Row = " + displayEbene);						//Label das die aktuelle dargestellte Reihe an LEDs angeben soll
+    CurrentEbenetext.setFont (CurrentEbenetext.getFont ().deriveFont (32.0f));	
     CurrentEbenetext.setBounds(400,845,300,100);
     panel.add(CurrentEbenetext);
     
-    sliderLabel = new JLabel("Time: " + slider.getValue() + " ms");
+    sliderLabel = new JLabel("Time: " + slider.getValue() + " ms");				//Slider mit dem man die Zeit, wielange ein Bild angezeigt werden soll, einstellen kann
     sliderLabel.setFont (sliderLabel.getFont ().deriveFont (25.0f));
     sliderLabel.setBounds(805,920,300,50);
     panel.add(sliderLabel);
             
     list.setBounds(810,100,250,235);
-    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);					//Man kann nur ein Item anklicken
     panel.add(list);
                       
     list2.setBounds(810,375,250,235);
@@ -241,7 +244,7 @@ public class GUI extends JFrame implements ActionListener {
     addToCombiner.setBackground(Color.green);
     panel.add(addToCombiner);  
     
-    JButton addToVideo = new JButton("Combine and create video");
+    JButton addToVideo = new JButton("Combine and create gif");
     addToVideo.setFont (addToVideo.getFont ().deriveFont (17.0f));
     addToVideo.setBounds(810,615,250,30);
     addToVideo.setBackground(Color.green);
@@ -253,8 +256,8 @@ public class GUI extends JFrame implements ActionListener {
     deselectButton.setBackground(Color.white);
     panel.add(deselectButton);
                   
-//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-//																				 PopupMenu  
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX		PopupMenu 
+																				  
     
     final JPopupMenu popupMenu = new JPopupMenu();   	//Popupmenu für Liste 1        
     JMenuItem save = new JMenuItem("Save as...");
@@ -298,9 +301,9 @@ public class GUI extends JFrame implements ActionListener {
     slider.setBounds(803,880,267,50);
     panel.add(slider);
       
-      slider.addChangeListener(new ChangeListener() {
+      slider.addChangeListener(new ChangeListener() {					//ActionListener für den Slider. Er wird ausgeloest sobald der Slider sich bewegt
           public void stateChanged(ChangeEvent e) {        	  
-            sliderLabel.setText("Time: " + slider.getValue() + " ms");
+            sliderLabel.setText("Time: " + slider.getValue() + " ms");	//Das label aktualisieren
           }
         });
          
@@ -309,20 +312,20 @@ public class GUI extends JFrame implements ActionListener {
         	  	       	  
         	  int index = list.getSelectedIndex();   			// klick kam von welchem item?   	  
         	  TimePerFrame[index+1]=slider.getValue();			//zeit des sliders wird in array gespeichert                           
-              SaveAndDeselectButtons(index);
-          }
+              SaveAndDeselectButtons(index);					//Buttons werden gespeichert und alle Items in den 3 Listen werden wieder "normal" dargestellt. 
+          }														//Wenn man ein Item in einer Liste anklickt, wird dieses Blau umrandet
         });
       
       addToCombiner.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
           
-            Object selectedItem = list.getSelectedValue();
-            int index = list.getSelectedIndex();
+            Object selectedItem = list.getSelectedValue();		 //angeklicktes Item herausfinden
+            int index = list.getSelectedIndex();				 //Index (geht von 0-14) bekommen
             
-            if (selectedItem != null) {               //nur wenn ein item ausgewählt wurde  
+            if (selectedItem != null) {              			 //nur wenn ein item ausgewählt wurde  
             	model2.setSize(15);                                                                       
-            	model2.set(index, "Importiertes Frame:   " + selectedItem);
-            	SaveAndDeselectButtons(index);
+            	model2.set(index, "Importiertes Frame:   " + selectedItem);	//In der zweiten Liste ein neues Item hinzufuegen
+            	SaveAndDeselectButtons(index);		
             } 
             
             list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
@@ -332,13 +335,13 @@ public class GUI extends JFrame implements ActionListener {
         });
           
       for (int i = 0; i <= 14; i++) {
-    	  IndexInVideo[i]=false;		//kein frame gehört bisher in das nächste video rein
+    	  IndexInVideo[i]=false;		//kein frame gehört bisher in das nächste video rein also ist das gesamte Array auf "false"
 	  }
       
       addToVideo.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {        	  	        	  	
-        	  	zaehler++;       	  	                                                                       
-          		model3.addElement("Video " + zaehler);
+        	  	zaehler++;       	  	                        //der zaehler soll zaehlen, wieviele "Video" Items es bereits gibt. Das ist wichtig um herauszufinden, welche Frames denn bei einem Klick dargestellt werden sollen 		                                              
+          		model3.addElement("Video " + zaehler);			//In der dritten Liste wird ein Item hinzugefuegt
           		
           		for (int i = 0; i <= 14; i++) {
           			if (model2.getElementAt(i) != null) {		//geht jedes tabellenitem durch und guckt ob es einen inhalt hat, wenn ja ....
@@ -363,7 +366,7 @@ public class GUI extends JFrame implements ActionListener {
                 	for (int i = 0; i <= 511; i++) {               
                           matrix[i] = matrixArray[i][index+1];                              
                 	}
-                	EbeneUpdate();    							  //GUI aktualisieren                                                    
+                	EbeneUpdate();    							 		  //GUI aktualisieren                                                    
                 	}
             }
         });
@@ -379,7 +382,7 @@ public class GUI extends JFrame implements ActionListener {
                 	list3.clearSelection();							//und macht, dass das item in der liste nichtmehr blau markiert ist
                   
                 	for (int i = 0; i <= 511; i++) {               
-                		matrix[i] = matrixArray[i][index+1];                       
+                		matrix[i] = matrixArray[i][index+1];        //Datenaustausch weil mit EbeneUpdate() das matrix[] Array angesprochen wird und nicht das Hilfsarray, in dem jedes frame gespeichert ist.                 
                 	}
                 	EbeneUpdate();									//GUI aktualisieren                 
                 	}
@@ -387,14 +390,14 @@ public class GUI extends JFrame implements ActionListener {
             }
         });
       
-      list3.addListSelectionListener(new ListSelectionListener() {		 //wenn ein item in liste 3 angeklickt wird
+      list3.addListSelectionListener(new ListSelectionListener() {		//wenn ein item in liste 3 angeklickt wird
             @Override
             public void valueChanged(ListSelectionEvent arg0) {	
-                if (!arg0.getValueIsAdjusting()) { 					//wenn der rückgabewert des events =true ist	
+                if (!arg0.getValueIsAdjusting()) { 						//wenn der rückgabewert des events =true ist	
                                                     
                 	int index = list3.getSelectedIndex();    			//soll geschaut werden von wo der klick kam
-                	list.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
-                	list2.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
+                	list.clearSelection();								//macht, dass das item in der liste nichtmehr blau markiert ist
+                	list2.clearSelection();								//macht, dass das item in der liste nichtmehr blau markiert ist
                 	int indexSammler[] = new int[15];
                 	int indexZaehler=0;                	
                 	
@@ -725,8 +728,13 @@ class MeinZeichenPanel extends JPanel{
       
       case "Connect":
     	  JFrame connectFrame = new JFrame();  	   
-    	  String ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    	  
-          break;     
+    	  String ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    
+    	  JFrame connectFrame2 = new JFrame();  	   
+    	  String port = JOptionPane.showInputDialog(connectFrame2, "Enter port");    
+          break;   
+      case "Disconnect":
+    	    
+          break;        
         
       case "All on":
           MatrixAn();							 //alle LEDs an
