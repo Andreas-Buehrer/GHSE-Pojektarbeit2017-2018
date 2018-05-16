@@ -2,6 +2,7 @@ package de.ghse.oberflaeche;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,7 +65,8 @@ public class GUI extends JFrame implements ActionListener {
   final JSlider slider = new JSlider(JSlider.HORIZONTAL,42,10000,1000);		//geht von 42-10000 und hat den standartwert 1000  ,  global um slider.getValue() machen zu können
   
   SimpleDataSending netsend = new SimpleDataSending();  //Konstruktoren
-  FileManager getdatafile = new FileManager();    
+  FileManager getdatafile = new FileManager();
+  MeinZeichenPanel panel = new MeinZeichenPanel();
   Steuerung str = new Steuerung();
   Stoppuhr time = new Stoppuhr();
   Undo undo = new Undo(); 
@@ -117,33 +119,38 @@ public class GUI extends JFrame implements ActionListener {
     panel.add(buttonPanel);
            
 //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    
-    
+// 																			Menubar    
     JMenuBar menuBar = new JMenuBar();
     frame.setJMenuBar(menuBar);
 
-    JMenu File = new JMenu("File");
-    menuBar.add(File);
+    JMenu file = new JMenu("File");
+    JMenu Edit = new JMenu("Edit");
+    JMenu connect1 = new JMenu("Connect");
+    menuBar.add(file);      
+    menuBar.add(Edit);       
+    menuBar.add(connect1);
+    
+    JMenuItem connect2 = new JMenuItem("Connect");
+    connect1.add(connect2);
+    connect2.addActionListener(this);
 
     JMenuItem OpenFile = new JMenuItem("Open File . . .");
     ImageIcon openFile = new ImageIcon("pictures/openFile.png");
     OpenFile.setIcon(openFile);
-    File.add(OpenFile);
+    file.add(OpenFile);
     OpenFile.addActionListener(this);
 
     JMenuItem SaveAs = new JMenuItem("Save as . . .");
     ImageIcon saveAs = new ImageIcon("pictures/saveAs.png");
     SaveAs.setIcon(saveAs);
-    File.add(SaveAs);
+    file.add(SaveAs);
     SaveAs.addActionListener(this);
 
     JMenuItem Exit = new JMenuItem("Exit");
-    File.add(Exit);
+    file.add(Exit);
     Exit.addActionListener(this);
-    
-    JMenu Edit = new JMenu("Edit");
-    menuBar.add(Edit);
-    
-    JMenuItem Undo = new JMenuItem("Undo reset");
+        
+    JMenuItem Undo = new JMenuItem("Undo: Clear all");
     ImageIcon undo = new ImageIcon("pictures/undo.png");
     Undo.setIcon(undo);
     Edit.add(Undo);
@@ -159,44 +166,53 @@ public class GUI extends JFrame implements ActionListener {
       buttons[i] = button;
       buttonPanel.add(buttons[i]);
     }
-    
-    output = new JButton("Weiter");
-    output.setBounds(30,830,100,30);    
-    output.addActionListener(this);
-    output.setBackground(Color.white);
-    panel.add(output);
 
-    ebeneup = new JButton("Ebene hoch");
-    ebeneup.setBounds(130,830,100,30);    
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//																						Buttons    
+    reset= new JButton("Clear all");
+    reset.setBounds(33,900,150,60);
+    reset.setFont (reset.getFont ().deriveFont (25.0f));
+    reset.addActionListener(this);
+    reset.setBackground(Color.red);
+    panel.add(reset);
+    
+    allOn = new JButton("All on");
+    allOn.setBounds(33,830,150,60);
+    allOn.setFont (allOn.getFont ().deriveFont (25.0f));
+    allOn.addActionListener(this);
+    allOn.setBackground(Color.green);
+    panel.add(allOn);
+        
+    ebeneup = new JButton("Row   ++");
+    ebeneup.setBounds(223,830,150,60);
+    ebeneup.setFont (ebeneup.getFont ().deriveFont (25.0f));
     ebeneup.addActionListener(this);
     ebeneup.setBackground(Color.green);
     panel.add(ebeneup);
 
-    ebenedown = new JButton("Ebene runter");
-    ebenedown.setBounds(230,830,120,30);    
+    ebenedown = new JButton("Row   --");
+    ebenedown.setBounds(223,900,150,60);
+    ebenedown.setFont (ebenedown.getFont ().deriveFont (25.0f));
     ebenedown.addActionListener(this);
     ebenedown.setBackground(Color.red);
     panel.add(ebenedown);
-
-    reset= new JButton("Clear all");
-    reset.setBounds(350,830,100,30);    
-    reset.addActionListener(this);
-    reset.setBackground(Color.white);
-    panel.add(reset);
-    
-    allOn = new JButton("All on");
-    allOn.setBounds(30,870,100,30);    
-    allOn.addActionListener(this);
-    allOn.setBackground(Color.white);
-    panel.add(allOn);
+     
+    output = new JButton("Send");
+    output.setBounds(1633,900,250,60);
+    output.setFont (output.getFont ().deriveFont (25.0f));
+    output.addActionListener(this);
+    output.setBackground(Color.white);
+    panel.add(output);
     
     int displayEbene = CurrentEbene + 1;
-    CurrentEbenetext = new JLabel("Ebene = " + displayEbene);
-    CurrentEbenetext.setBounds(480,820,100,50);
+    CurrentEbenetext = new JLabel("Row = " + displayEbene);
+    CurrentEbenetext.setFont (CurrentEbenetext.getFont ().deriveFont (32.0f));
+    CurrentEbenetext.setBounds(400,845,300,100);
     panel.add(CurrentEbenetext);
     
-    sliderLabel = new JLabel("Anzeigedauer: " + slider.getValue() + "ms");
-    sliderLabel.setBounds(480,920,300,50);
+    sliderLabel = new JLabel("Time: " + slider.getValue() + " ms");
+    sliderLabel.setFont (sliderLabel.getFont ().deriveFont (25.0f));
+    sliderLabel.setBounds(805,920,300,50);
     panel.add(sliderLabel);
             
     list.setBounds(810,100,250,235);
@@ -213,27 +229,33 @@ public class GUI extends JFrame implements ActionListener {
        
     
     JButton addButton= new JButton("Save current frame");
+    addButton.setFont (addButton.getFont ().deriveFont (18.0f));
     addButton.setBounds(810,3,250,57);
     addButton.addActionListener(this);
     addButton.setBackground(Color.green);
     panel.add(addButton);
     
     JButton addToCombiner = new JButton("Add");
+    addToCombiner.setFont (addToCombiner.getFont ().deriveFont (18.0f));
     addToCombiner.setBounds(810,340,250,30);
     addToCombiner.setBackground(Color.green);
     panel.add(addToCombiner);  
     
     JButton addToVideo = new JButton("Combine and create video");
+    addToVideo.setFont (addToVideo.getFont ().deriveFont (17.0f));
     addToVideo.setBounds(810,615,250,30);
     addToVideo.setBackground(Color.green);
     panel.add(addToVideo);
                                
     JButton deselectButton = new JButton("Save & Deselect item");
+    deselectButton.setFont (deselectButton.getFont ().deriveFont (18.0f));
     deselectButton.setBounds(810,65,250,30);
     deselectButton.setBackground(Color.white);
     panel.add(deselectButton);
                   
-     
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+//																				 PopupMenu  
+    
     final JPopupMenu popupMenu = new JPopupMenu();   	//Popupmenu für Liste 1        
     JMenuItem save = new JMenuItem("Save as...");
     JMenuItem rename = new JMenuItem("Rename");
@@ -273,12 +295,12 @@ public class GUI extends JFrame implements ActionListener {
     
     slider.setMajorTickSpacing(1000);
     slider.setPaintTicks(true);
-    slider.setBounds(700,900,500,50);
+    slider.setBounds(803,880,267,50);
     panel.add(slider);
       
       slider.addChangeListener(new ChangeListener() {
           public void stateChanged(ChangeEvent e) {        	  
-            sliderLabel.setText("Anzeigedauer: " + slider.getValue() + "ms");
+            sliderLabel.setText("Time: " + slider.getValue() + " ms");
           }
         });
          
@@ -286,9 +308,7 @@ public class GUI extends JFrame implements ActionListener {
           public void actionPerformed(ActionEvent e) {        	  	        	  	
         	  	       	  
         	  int index = list.getSelectedIndex();   			// klick kam von welchem item?   	  
-        	  TimePerFrame[index+1]=slider.getValue();			//zeit des sliders wird in array gespeichert
-              System.out.println(TimePerFrame[index+1]);
-              
+        	  TimePerFrame[index+1]=slider.getValue();			//zeit des sliders wird in array gespeichert                           
               SaveAndDeselectButtons(index);
           }
         });
@@ -375,31 +395,38 @@ public class GUI extends JFrame implements ActionListener {
                 	int index = list3.getSelectedIndex();    			//soll geschaut werden von wo der klick kam
                 	list.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
                 	list2.clearSelection();							//macht, dass das item in der liste nichtmehr blau markiert ist
-                	int indexA[] = new int[15];
-                	int indexZaehler=0;
-                	int indexZaehler2=indexZaehler;
+                	int indexSammler[] = new int[15];
+                	int indexZaehler=0;                	
                 	
                 	for (int i = 0; i <= 13; i++) {
 						if (IndexInVideo[i+1]=true) {
 							indexZaehler++;
-							indexA[indexZaehler]=index+1;	//enthält alle index die ins video kommen müssen
+							indexSammler[indexZaehler]=index+1;	//enthält alle index die ins video kommen müssen
 						}
 					}
-                                              	                	
-                	for (int i = 0; i <= 511; i++) {
-                		for (int j = 0; j <= indexZaehler; j++) {
-                			try {
-								Thread.sleep(TimePerFrame[j]);								
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}                			
-                			for (indexZaehler2  = 0;  indexZaehler2<= indexZaehler; indexZaehler2++) {                				
-                				matrix[i] = matrixArray[i][indexA[indexZaehler2]]; 
-							}               			    
-						}                		           		
-                	}					                	
-                	EbeneUpdate();									 //GUI aktualisieren                 
+                                      	                	                	                	                	
+                	     
+                	for (int i = 0; i <= 511; i++) {               
+                		matrix[i] = matrixArray[i][1];                       
+                	}
+            		EbeneUpdate();	
+                	          		
+                /*  double elapsedtime = 0;
+                	long starttime= System.currentTimeMillis();                  	
+                	do {                    										
+                	    long endtime=System.currentTimeMillis();
+                	    elapsedtime=(double)(endtime-starttime);                	       
+                	} while (elapsedtime<=1500);
+
+                	
+                	for (int i = 0; i <= 511; i++) {               
+                		matrix[i] = matrixArray[i][2];                       
+                	}
+                	EbeneUpdate();									//GUI aktualisieren       
+                */
+                	  
+                	
+                	
                 	}
             }
         });
@@ -604,9 +631,21 @@ public class GUI extends JFrame implements ActionListener {
           	  }
 
         });
-                
+             
+         
+     
   } //ende initialize
  
+  @SuppressWarnings("serial")
+class MeinZeichenPanel extends JPanel{
+	    public void paintComponent(Graphics g){
+	      	
+	    	g.setColor(Color.RED);
+	    	g.fillRect(1000, 200, 500, 500);
+	    }
+	  }
+  
+  
   
   public void actionPerformed(ActionEvent e) {        
   
@@ -637,7 +676,7 @@ public class GUI extends JFrame implements ActionListener {
         EbeneUpdate();
         break;
         
-      case "Weiter":
+      case "Send":
         time.StartTimer();
         try {
           netsend.Stringbuilder(matrix,1);
@@ -648,14 +687,14 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println(" Gesamte Zeit"+time.StoppTimer()+"ms");
         break;
         
-      case "Ebene hoch":
+      case "Row   ++":
         if (CurrentEbene < 7) {
           CurrentEbene++;
           EbeneUpdate();
         }
         break;
         
-      case "Ebene runter":
+      case "Row   --":
         if (CurrentEbene > 0) {
           CurrentEbene--;
           EbeneUpdate();
@@ -684,6 +723,11 @@ public class GUI extends JFrame implements ActionListener {
         getdatafile.SaveArraytoFile(matrix);
         break;
       
+      case "Connect":
+    	  JFrame connectFrame = new JFrame();  	   
+    	  String ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    	  
+          break;     
+        
       case "All on":
           MatrixAn();							 //alle LEDs an
           EbeneUpdate();						 //GUI aktualisieren
@@ -733,7 +777,7 @@ void SaveCurrentFrame() {
   
   void EbeneUpdate() {        // Methode die die Buttons der sichtbaren ebene updated
     
-    CurrentEbenetext.setText("Ebene = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
+    CurrentEbenetext.setText("Row = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
     int CurrentOffset = (CurrentEbene) * 64;// Button Offset
 
     for (int i = 0; i < 64; i++) {

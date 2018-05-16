@@ -1,13 +1,9 @@
 package de.ghse.schnittstelle;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Random;
-import java.util.Scanner;
 
 import de.ghse.werkzeuge.Stoppuhr;
 
