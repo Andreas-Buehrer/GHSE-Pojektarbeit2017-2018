@@ -9,11 +9,23 @@ import de.ghse.werkzeuge.Stoppuhr;
 
 public class SimpleDataSending {
 
+	public static void connectToServer(String ipadresse,String port) {
+		try {
+			Socket clientSocket = new Socket("192.168.2.5", 23);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // Serveradresse wird hier angegeben beim simulieren
+		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); // Referenz um ausgehenden Datenverkehr zu kontrollieren
+	}
+	public void disconnect() {
+		clientSocket.close();
+	}
   public void Stringbuilder(boolean[] matrix, int iterationsIndex) throws UnknownHostException, IOException {
     
     Stoppuhr time = new Stoppuhr();
     time.StartTimer();
-    Socket clientSocket = new Socket("192.168.2.5", 23); // Serveradresse wird hier angegeben beim simulieren
+    
     for (int iterations = 0; iterations < iterationsIndex; iterations++) {
 
       int sendchar = 0, multiplierIndex = 0;
@@ -47,7 +59,7 @@ public class SimpleDataSending {
                                   
       //BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
                                                       
-      DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); // Referenz um ausgehenden Datenverkehr zu kontrollieren
+      
       outToServer.writeBytes(sendstring);
 
       // String rueckgabewert = inFromServer.readLine();
@@ -56,6 +68,6 @@ public class SimpleDataSending {
       System.out.println("Uebertragungszeit " + time.StoppTimer() + "ms");
 
     }
-    clientSocket.close();
+    
   }
 }
