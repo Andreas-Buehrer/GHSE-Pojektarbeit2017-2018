@@ -4,17 +4,15 @@ import de.ghse.schnittstelle.Schnittstelle;
 
 public class Steuerung {
   
-
   
   short data_leds[][] = new short[9][9]; 
   //zahlen (an_aus) von 1-255 sollen reingeladen werden 
 
   Schnittstelle schnitttigesache = new Schnittstelle();
   boolean ledfeld[][][] = new boolean[9][9][9];
+  
   public void knopfGedrueckt(int buttons,boolean an_aus){
-  String Status;
-  
-  
+    
   int LED,rest,rest2,z,y,x;
     do {
      

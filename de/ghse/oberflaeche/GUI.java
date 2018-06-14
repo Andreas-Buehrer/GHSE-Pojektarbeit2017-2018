@@ -30,21 +30,23 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import de.ghse.schnittstelle.SimpleDataSending;
+import de.ghse.steuerung.ConvertView;
 import de.ghse.steuerung.FileManager;
 import de.ghse.steuerung.Steuerung;
+//import de.ghse.oberflaeche.Cube;
 import de.ghse.steuerung.Undo;
 import de.ghse.werkzeuge.Stoppuhr;
 
+@SuppressWarnings("serial")
 public class GUI extends JFrame implements ActionListener {
 
   int layer = 0, countm, countn, button,counter=12,selectedItem,anzahlItems = 0,frameNummer = 0,CurrentEbene = 0,LEDS = 64,videoZaehler=0,zaehler=0;  
   private JButton[] buttons;
-  private JLabel CurrentEbenetext,sliderLabel;
-  private JButton output,ebeneup,ebenedown,reset,allOn;
+  private JLabel CurrentEbenetext,sliderLabel,view;
+  private JButton output,ebeneup,ebenedown,reset,allOn,showCube,front,back,top,bottom,right,left;
   private boolean[] geklickt = new boolean[LEDS];
   private boolean[] matrix = new boolean[512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor allem mit EbeneUpdate();
-  public boolean[] matrixTemp = new boolean[512];
-  public boolean[] matrixAnzeige = new boolean[512];		
+  public boolean[] matrixTemp = new boolean[512];	
   public boolean[] IndexInVideo = new boolean[15];			//mehr als 15 frames wird ein user für ein video nicht brauchen
   public boolean[][] matrixArray = new boolean[512][15];    //max 15 Frames können gespeichert werden
   public int[] TimePerFrame = new int[15];					//mehr als 15 frames wird ein user für ein video nicht brauchen
@@ -52,14 +54,21 @@ public class GUI extends JFrame implements ActionListener {
   private JFrame frame;
   public JTextField textField;
   public String ip,port;
+  private String name;
   
-  final DefaultListModel model = new DefaultListModel();	//Initialisierung der DefaultListModel muss global geschehen, damit man von ueberall Zugriff darauf hat
-  final DefaultListModel model2 = new DefaultListModel(); 
-  final DefaultListModel model3 = new DefaultListModel(); 
+  @SuppressWarnings("rawtypes")
+final DefaultListModel model = new DefaultListModel();	//Initialisierung der DefaultListModel muss global geschehen, damit man von ueberall Zugriff darauf hat
+  @SuppressWarnings("rawtypes")
+final DefaultListModel model2 = new DefaultListModel(); 
+  @SuppressWarnings("rawtypes")
+final DefaultListModel model3 = new DefaultListModel(); 
   
-  final JList list = new JList(model);						//Initialisierung der JLists muss global geschehen, damit man von ueberall Zugriff darauf hat
-  final JList list2 = new JList(model2); 
-  final JList list3 = new JList(model3); 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+final JList list = new JList(model);						//Initialisierung der JLists muss global geschehen, damit man von ueberall Zugriff darauf hat
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+final JList list2 = new JList(model2); 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+final JList list3 = new JList(model3); 
   
   final JSlider slider = new JSlider(JSlider.HORIZONTAL,42,10000,1000);		//geht von 42-10000 und hat den standartwert 1000  ,  global um slider.getValue() machen zu können
   
@@ -67,8 +76,9 @@ public class GUI extends JFrame implements ActionListener {
   ImageIcon grau = new ImageIcon("pictures/GrauerPunkt.png"); 		//Bild grau steht fuer einen grauen Button (=LED aus)
   
   SimpleDataSending netsend = new SimpleDataSending(); 	 			//Konstruktoren
-  FileManager getdatafile = new FileManager();
   MeinZeichenPanel panel = new MeinZeichenPanel();
+  FileManager getdatafile = new FileManager();
+  ConvertView v = new ConvertView();
   Steuerung str = new Steuerung();
   Stoppuhr time = new Stoppuhr();
   Undo undo = new Undo(); 
@@ -105,19 +115,20 @@ public class GUI extends JFrame implements ActionListener {
     MatrixAus();							  //alle LEDs AUS um Bugs zu vermeiden
      
     frame = new JFrame();				      //Fenster erstellen								
-    frame.setSize(1920, 1042);				  //mit der Groesse 1920 x 1042 (Ca. Vollbild)
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);     
-
-    JPanel panel = new JPanel();              //Großes Panel, auf dem alle anderen Panels und Buttons etc. aufbauen
+    frame.setSize(900, 1024);				  //mit der Groesse 1920 x 1042 (Ca. Vollbild)
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        
+    final JPanel panel = new JPanel();        //Großes Panel, auf dem alle anderen Panels und Buttons etc. aufbauen
     JPanel buttonPanel = new JPanel();        //nur für die 8x8 buttons
     frame.getContentPane().add(panel);		  //Panel zum Frame hinzugefügt
     panel.setLayout(null);					  //Kein Layout --> Direkte Koordinatenangabe der Items benötigt
         
     
-    buttonPanel.setBounds(0, 0, 800, 800);	 				 //Groesse des Panels für die Buttons festlegen
+    buttonPanel.setBounds(0, 0, 600, 600);	 				 //Groesse des Panels für die Buttons festlegen
     buttonPanel.setLayout(new GridLayout(8, 8, -1, -1));	 //Als Layout natuerlich das GridLayout, welches ein 8x8 "Schachfeld" macht. Zwischen den Quadraten ist die Lücke -1, also keine Lücke
     panel.add(buttonPanel);									 //Das ButtonPanel auf das grosse panel setzen		
-     
+       
+    
     buttons = new JButton[LEDS];			   //Initialisierung eines Button-Arrays
     
     for (int i = 0; i < buttons.length; i++) { //alle 64 Buttons entwerfen und auf das Panel setzen   	
@@ -174,86 +185,150 @@ public class GUI extends JFrame implements ActionListener {
 //XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX		Buttons
    
     reset= new JButton("Clear all");						//Neuer Button mit der Beschriftung "Clear all"
-    reset.setBounds(33,900,150,60);							//Position: X=33 Y=900 		Breite=150  Hoehe=60
+    reset.setBounds(3,680,150,60);							//Position: X=33 Y=900 		Breite=150  Hoehe=60
     reset.setFont (reset.getFont ().deriveFont (25.0f));	//Schriftart und Groesse aendern
     reset.addActionListener(this);							//ActionListener hinzufuegen
     reset.setBackground(Color.red);							//Hintergrundfarbe auf rot 
     panel.add(reset);										//Zum panel hinzufuegen
     
     allOn = new JButton("All on");
-    allOn.setBounds(33,830,150,60);
+    allOn.setBounds(3,605,150,60);
     allOn.setFont (allOn.getFont ().deriveFont (25.0f));
     allOn.addActionListener(this);
     allOn.setBackground(Color.green);
     panel.add(allOn);
         
     ebeneup = new JButton("Row   ++");
-    ebeneup.setBounds(223,830,150,60);
+    ebeneup.setBounds(173,605,150,60);
     ebeneup.setFont (ebeneup.getFont ().deriveFont (25.0f));
     ebeneup.addActionListener(this);
     ebeneup.setBackground(Color.green);
     panel.add(ebeneup);
 
     ebenedown = new JButton("Row   --");
-    ebenedown.setBounds(223,900,150,60);
+    ebenedown.setBounds(173,680,150,60);
     ebenedown.setFont (ebenedown.getFont ().deriveFont (25.0f));
     ebenedown.addActionListener(this);
     ebenedown.setBackground(Color.red);
     panel.add(ebenedown);
      
     output = new JButton("Send");
-    output.setBounds(1633,900,250,60);
+    output.setBounds(33,870,150,60);
     output.setFont (output.getFont ().deriveFont (25.0f));
     output.addActionListener(this);
     output.setBackground(Color.white);
     panel.add(output);
     
+    showCube = new JButton("Show 3D cube");
+    showCube.setBounds(223,870,220,60);
+    showCube.setFont (showCube.getFont ().deriveFont (25.0f));
+    showCube.addActionListener(this);
+    showCube.setBackground(Color.white);
+    panel.add(showCube);
+    
+    front = new JButton("front");
+    front.setBounds(350,640,245,30);
+    front.setFont (front.getFont ().deriveFont (25.0f));
+    front.addActionListener(this);
+    front.setBackground(Color.white);
+    panel.add(front);
+    
+    back = new JButton("back");
+    back.setBounds(350,675,245,30);
+    back.setFont (back.getFont ().deriveFont (25.0f));
+    back.addActionListener(this);
+    back.setBackground(Color.white);
+    panel.add(back);
+    
+    bottom = new JButton("bottom");
+    bottom.setBounds(350,710,245,30);
+    bottom.setFont (bottom.getFont ().deriveFont (25.0f));
+    bottom.addActionListener(this);
+    bottom.setBackground(Color.white);
+    panel.add(bottom);
+    
+    top = new JButton("top");
+    top.setBounds(350,605,245,30);
+    top.setFont (top.getFont ().deriveFont (25.0f));
+    top.addActionListener(this);
+    top.setBackground(Color.white);
+    panel.add(top);
+    
+    left = new JButton("left");
+    left.setBounds(350,745,245,30);
+    left.setFont (left.getFont ().deriveFont (25.0f));
+    left.addActionListener(this);
+    left.setBackground(Color.white);
+    panel.add(left);
+    
+    right = new JButton("right");
+    right.setBounds(350,780,245,30);
+    right.setFont (right.getFont ().deriveFont (25.0f));
+    right.addActionListener(this);
+    right.setBackground(Color.white);
+    panel.add(right);
+    
+    
+    slider.setMajorTickSpacing(1000);		//JSlider für die zeitbestimmung
+    slider.setPaintTicks(true);
+    slider.setBounds(603,880,267,50);
+    panel.add(slider);
+    
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX JLabel    
+    
     int displayEbene = CurrentEbene + 1;
     CurrentEbenetext = new JLabel("Row = " + displayEbene);						//Label das die aktuelle dargestellte Reihe an LEDs angeben soll
-    CurrentEbenetext.setFont (CurrentEbenetext.getFont ().deriveFont (32.0f));	
-    CurrentEbenetext.setBounds(400,845,300,100);
+    CurrentEbenetext.setFont (CurrentEbenetext.getFont ().deriveFont (28.0f));	
+    CurrentEbenetext.setBounds(10,750,300,50);
     panel.add(CurrentEbenetext);
     
     sliderLabel = new JLabel("Time: " + slider.getValue() + " ms");				//Slider mit dem man die Zeit, wielange ein Bild angezeigt werden soll, einstellen kann
     sliderLabel.setFont (sliderLabel.getFont ().deriveFont (25.0f));
-    sliderLabel.setBounds(805,920,300,50);
+    sliderLabel.setBounds(605,920,300,50);
     panel.add(sliderLabel);
+    
+    view = new JLabel("Perspective: front");						//zeigt an, von welcher perspektive man den wuerfel gerade anschaut und bearbeitet
+    view.setFont (view.getFont ().deriveFont (28.0f));
+    view.setBounds(10,800,300,50);
+    panel.add(view);
+     
+//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX	JList    
             
-    list.setBounds(810,100,250,235);
+    list.setBounds(610,100,250,235);
     list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);					//Man kann nur ein Item anklicken
     panel.add(list);
                       
-    list2.setBounds(810,375,250,235);
+    list2.setBounds(610,375,250,235);
     list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     panel.add(list2);
                  
-    list3.setBounds(810,650,250,235);
+    list3.setBounds(610,650,250,235);
     list3.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     panel.add(list3);
        
     
     JButton addButton= new JButton("Save current frame");
     addButton.setFont (addButton.getFont ().deriveFont (18.0f));
-    addButton.setBounds(810,3,250,57);
+    addButton.setBounds(610,3,250,57);
     addButton.addActionListener(this);
     addButton.setBackground(Color.green);
     panel.add(addButton);
     
     JButton addToCombiner = new JButton("Add");
     addToCombiner.setFont (addToCombiner.getFont ().deriveFont (18.0f));
-    addToCombiner.setBounds(810,340,250,30);
+    addToCombiner.setBounds(610,340,250,30);
     addToCombiner.setBackground(Color.green);
     panel.add(addToCombiner);  
     
-    JButton addToVideo = new JButton("Combine and create gif");
+    JButton addToVideo = new JButton("Combine and create GIF");
     addToVideo.setFont (addToVideo.getFont ().deriveFont (17.0f));
-    addToVideo.setBounds(810,615,250,30);
+    addToVideo.setBounds(610,615,250,30);
     addToVideo.setBackground(Color.green);
     panel.add(addToVideo);
                                
     JButton deselectButton = new JButton("Save & Deselect item");
     deselectButton.setFont (deselectButton.getFont ().deriveFont (18.0f));
-    deselectButton.setBounds(810,65,250,30);
+    deselectButton.setBounds(610,65,250,30);
     deselectButton.setBackground(Color.white);
     panel.add(deselectButton);
                   
@@ -295,19 +370,25 @@ public class GUI extends JFrame implements ActionListener {
     save3.addActionListener(this);
     rename3.addActionListener(this);
     delete3.addActionListener(this);
-
-    
-    slider.setMajorTickSpacing(1000);
-    slider.setPaintTicks(true);
-    slider.setBounds(803,880,267,50);
-    panel.add(slider);
+   
       
       slider.addChangeListener(new ChangeListener() {					//ActionListener für den Slider. Er wird ausgeloest sobald der Slider sich bewegt
           public void stateChanged(ChangeEvent e) {        	  
             sliderLabel.setText("Time: " + slider.getValue() + " ms");	//Das label aktualisieren
           }
         });
-         
+       
+      showCube.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {        	  	        	  	
+        	  	       	         	 
+        	 JFrame cubeFrame = new JFrame();
+       		 cubeFrame.setSize(900, 900);
+       		 cubeFrame.setLocation(50, 50);
+       		 cubeFrame.setTitle("3D visualization of the cube");
+       		 cubeFrame.setVisible(true);					
+          }														
+        });
+      
       deselectButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {        	  	        	  	
         	  	       	  
@@ -318,14 +399,15 @@ public class GUI extends JFrame implements ActionListener {
         });
       
       addToCombiner.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
+          @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent e) {
           
             Object selectedItem = list.getSelectedValue();		 //angeklicktes Item herausfinden
             int index = list.getSelectedIndex();				 //Index (geht von 0-14) bekommen
             
             if (selectedItem != null) {              			 //nur wenn ein item ausgewählt wurde  
             	model2.setSize(15);                                                                       
-            	model2.set(index, "Importiertes Frame:   " + selectedItem);	//In der zweiten Liste ein neues Item hinzufuegen
+            	model2.set(index, "Imported:   " + selectedItem);	//In der zweiten Liste ein neues Item hinzufuegen
             	SaveAndDeselectButtons(index);		
             } 
             
@@ -340,17 +422,17 @@ public class GUI extends JFrame implements ActionListener {
 	  }
       
       addToVideo.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {        	  	        	  	
+          @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent e) {        	  	        	  	
         	  	zaehler++;       	  	                        //der zaehler soll zaehlen, wieviele "Video" Items es bereits gibt. Das ist wichtig um herauszufinden, welche Frames denn bei einem Klick dargestellt werden sollen 		                                              
           		model3.addElement("Video " + zaehler);			//In der dritten Liste wird ein Item hinzugefuegt
           		
           		for (int i = 0; i <= 14; i++) {
           			if (model2.getElementAt(i) != null) {		//geht jedes tabellenitem durch und guckt ob es einen inhalt hat, wenn ja ....
           				IndexInVideo[i+1]=true;					//markiert welche frames in das video kommen werden						
-					}
-          			
+					}         			
 				}
-          	
+          		model2.clear();									//liste 2 leeren damit dort keine frames mehr zu sehen sind. Sie wurden ja zum GIF in liste 3
           		
           }
         });
@@ -386,8 +468,7 @@ public class GUI extends JFrame implements ActionListener {
                 		matrix[i] = matrixArray[i][index+1];        //Datenaustausch weil mit EbeneUpdate() das matrix[] Array angesprochen wird und nicht das Hilfsarray, in dem jedes frame gespeichert ist.                 
                 	}
                 	EbeneUpdate();									//GUI aktualisieren                 
-                	}
-                
+                	}               
             }
         });
       
@@ -409,26 +490,33 @@ public class GUI extends JFrame implements ActionListener {
 						}
 					}
                                       	                	                	                	                	
-                	     
+                	                 	
+                	
                 	for (int i = 0; i <= 511; i++) {               
                 		matrix[i] = matrixArray[i][1];                       
                 	}
-            		EbeneUpdate();	
-                	          		
-                /*  double elapsedtime = 0;
-                	long starttime= System.currentTimeMillis();                  	
-                	do {                    										
-                	    long endtime=System.currentTimeMillis();
-                	    elapsedtime=(double)(endtime-starttime);                	       
-                	} while (elapsedtime<=1500);
-
+            		EbeneUpdate();            		
+                	    
+            		try {
+						Thread.sleep(1500);					//1.5sek nichts tun
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}            
                 	
-                	for (int i = 0; i <= 511; i++) {               
-                		matrix[i] = matrixArray[i][2];                       
-                	}
-                	EbeneUpdate();									//GUI aktualisieren       
-                */
-                	  
+                   for (int i = 0; i <= 511; i++) {               
+                	   matrix[i] = matrixArray[i][2];                       
+                   }
+                   EbeneUpdate();									//GUI aktualisieren                   
+                
+                   
+/*				   double elapsedtime = 0;
+                   long starttime= System.currentTimeMillis();                  	
+                   do {                	   
+                	   long endtime=System.currentTimeMillis();
+                	   elapsedtime=(double)(endtime-starttime);                	       
+                   } while (elapsedtime<=1500);
+*/               	  
                 	
                 	
                 	}
@@ -436,58 +524,52 @@ public class GUI extends JFrame implements ActionListener {
         });
                                                                                                 
       list.addMouseListener(new MouseAdapter() {								//frame lässt sich per doppelklick "renamen"   in liste 1
-          public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2) {
-            	int index = list.locationToIndex(e.getPoint());
-            	Object item = model.getElementAt(index);
-            	String text = JOptionPane.showInputDialog("Rename item", item);
-            	String newitem = "";
-            	if (text != null)
-            		newitem = text.trim();
-            	else
-            		return;
-
-            	if (!newitem.isEmpty()) {
-            		model.remove(index);
-            		model.add(index, newitem);
-            		ListSelectionModel selmodel = list.getSelectionModel();
-            		selmodel.setLeadSelectionIndex(index);
-            	}
+          @SuppressWarnings("unchecked")
+		public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {            	          	
+            	
+            	Object selectedItem = list.getSelectedValue();		 //angeklicktes Item herausfinden
+                int index = list.getSelectedIndex();				 //Index (geht von 0-14) bekommen
+                
+                if (selectedItem != null) {              			 //nur wenn ein item ausgewählt wurde  
+                	model2.setSize(15);                                                                       
+                	model2.set(index, "Imported:   " + selectedItem);	//In der zweiten Liste ein neues Item hinzufuegen
+                	SaveAndDeselectButtons(index);		
+                } 
+                
+                list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
+                list2.clearSelection();
+                list3.clearSelection();
+            	
             }
           }
         }); 
       
       list2.addMouseListener(new MouseAdapter() {								//frame lässt sich per doppelklick "renamen"   in liste 2
-          public void mouseClicked(MouseEvent e) {
+          @SuppressWarnings("unchecked")
+		public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
-            	int index = list2.locationToIndex(e.getPoint());
-            	Object item = model2.getElementAt(index);
-            	String text = JOptionPane.showInputDialog("Rename item", item);
-            	String newitem = "";
-            	if (text != null)
-            		newitem = text.trim();
-            	else
-            		return;
-
-            	if (!newitem.isEmpty()) {
-            		model2.remove(index);
-            		model2.add(index, newitem);
-            		ListSelectionModel selmodel = list2.getSelectionModel();
-            		selmodel.setLeadSelectionIndex(index);
-            		}
+            	
+              ListSelectionModel selmodel = list2.getSelectionModel();
+          	  int index = selmodel.getMinSelectionIndex();
+          	  if (index >= 0) {
+          		  model2.remove(index);
+              }
+            	
             	}
           }
         }); 
       	
       list3.addMouseListener(new MouseAdapter() {								//frame lässt sich per doppelklick "renamen"   in liste 3
-          public void mouseClicked(MouseEvent e) {
+          @SuppressWarnings("unchecked")
+		public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
             	int index = list3.locationToIndex(e.getPoint());
             	Object item = model3.getElementAt(index);
-            	String text = JOptionPane.showInputDialog("Rename video", item);
+            	String name = JOptionPane.showInputDialog("Rename video", item);
             	String newitem = "";
-            	if (text != null)
-            		newitem = text.trim();
+            	if (name != null)
+            		newitem = name.trim();
             	else
             		return;
 
@@ -518,7 +600,7 @@ public class GUI extends JFrame implements ActionListener {
           public void mouseClicked(java.awt.event.MouseEvent me) {
           // if right mouse button clicked 
           if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
-          && !list2.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
+          && !list2.isSelectionEmpty()						//UND wenn NICHT nichts angeklickt ist
           && list2.locationToIndex(me.getPoint())			//UND der ursprung des klicks 
           == list2.getSelectedIndex()) {					//dem ausgewählten item enspricht
           popupMenu2.show(list2, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
@@ -531,7 +613,7 @@ public class GUI extends JFrame implements ActionListener {
           public void mouseClicked(java.awt.event.MouseEvent me) {
           // if right mouse button clicked 
           if (SwingUtilities.isRightMouseButton(me)			//wenn rechte maustaste gedrückt wurde
-          && !list3.isSelectionEmpty()						//wenn NICHT nichts angeklickt ist
+          && !list3.isSelectionEmpty()						//UND wenn NICHT nichts angeklickt ist
           && list3.locationToIndex(me.getPoint())			//UND der ursprung des klicks
           == list3.getSelectedIndex()) {					//dem ausgewählten item enspricht
           popupMenu3.show(list3, me.getX(), me.getY());		// --> zeige popupMenu an Mausposition
@@ -541,7 +623,8 @@ public class GUI extends JFrame implements ActionListener {
           );
       
       rename.addActionListener(new ActionListener() {					//action listener für popupmenu item "rename" in liste 1
-          public void actionPerformed(ActionEvent e) {
+          @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent e) {
         	  ListSelectionModel selmodel = list.getSelectionModel();
         	  int index = selmodel.getMinSelectionIndex();
         	  if (index == -1)
@@ -563,17 +646,18 @@ public class GUI extends JFrame implements ActionListener {
         });
       
       rename2.addActionListener(new ActionListener() {					//action listener für popupmenu item "rename" in liste 2
-          public void actionPerformed(ActionEvent e) {
+          @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent e) {
         	  ListSelectionModel selmodel = list2.getSelectionModel();
         	  int index = selmodel.getMinSelectionIndex();
         	  if (index == -1)
         		  return;
         	  Object item = model2.getElementAt(index);
-        	  String text = JOptionPane.showInputDialog("Rename frame", item);
+        	  name = JOptionPane.showInputDialog("Rename frame", item);
         	  String newitem = null;
 
-        	  if (text != null) {
-        		  newitem = text.trim();        
+        	  if (name != null) {
+        		  newitem = name.trim();        
         	  } else
         		  return;
 
@@ -585,7 +669,8 @@ public class GUI extends JFrame implements ActionListener {
         });
       
       rename3.addActionListener(new ActionListener() {					//action listener für popupmenu item "rename" in liste 3
-          public void actionPerformed(ActionEvent e) {
+          @SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent e) {
         	  ListSelectionModel selmodel = list3.getSelectionModel();
         	  int index = selmodel.getMinSelectionIndex();
         	  if (index == -1)
@@ -605,7 +690,7 @@ public class GUI extends JFrame implements ActionListener {
         	  }
           }
         });
-        
+       
       delete.addActionListener(new ActionListener() {					//action listener für popupmenu item "delete" in liste 1
           public void actionPerformed(ActionEvent event) {
         	  ListSelectionModel selmodel = list.getSelectionModel();
@@ -637,10 +722,11 @@ public class GUI extends JFrame implements ActionListener {
         });
              
          
-     
+      front.setBackground(Color.green);	//Standartsicht ist von vorne. Daher muss der button markiert werden
+      
   } //ende initialize
  
-  @SuppressWarnings("serial")
+  
 class MeinZeichenPanel extends JPanel{
 	    public void paintComponent(Graphics g){
 	      	
@@ -672,7 +758,7 @@ class MeinZeichenPanel extends JPanel{
       }
     
     
-  switch (quelle) {
+  switch (quelle) {					//in string quelle steht woher der klick kam
     
       case "Clear all":
         undo.undoMatrixToTemp(matrix);
@@ -693,6 +779,7 @@ class MeinZeichenPanel extends JPanel{
         
       case "Row   ++":
         if (CurrentEbene < 7) {
+          ebeneup.setEnabled(true);
           CurrentEbene++;
           EbeneUpdate();
         }
@@ -714,16 +801,13 @@ class MeinZeichenPanel extends JPanel{
         EbeneUpdate();						 //GUI aktualisieren
         break;
       
-      case "Save as . . .":
+      case "Save as . . .":						//JMenu    	  
+    	getdatafile.gibNamen(name);  
         getdatafile.SaveArraytoFile(matrix);
-        break;
+        break;              
       
-      case "Undo reset":
-        matrix=undo.undoTempToMatrix();
-        EbeneUpdate();						 //GUI aktualisieren
-        break;          
-      
-      case "Save as...":
+      case "Save as...":						//JPopupMenu
+    	getdatafile.gibNamen(name);  
         getdatafile.SaveArraytoFile(matrix);
         break;
       
@@ -732,14 +816,22 @@ class MeinZeichenPanel extends JPanel{
     		  JFrame connectFrame = new JFrame();  	   
         	  ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    
         	  JFrame connectFrame2 = new JFrame();  	   
-        	  port = JOptionPane.showInputDialog(connectFrame2, "Enter port");    
-		}else {
-			
-		}
-    	  
-          break;   
+        	  port = JOptionPane.showInputDialog(connectFrame2, "Enter port"); 
+        	  
+        	  try {
+				netsend.connectToServer(ip, port);		//Methodenaufruf um zu connecten
+			  } catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			  }
+        	  
+		 }else {
+			//nichts
+		 }   	  
+          break; 
+          
       case "Disconnect":
-    	    
+    	    netsend.disconnect();					//Methodenaufruf zum disconnecten
           break;        
         
       case "All on":
@@ -750,41 +842,118 @@ class MeinZeichenPanel extends JPanel{
       case "Save current frame":
       	  SaveCurrentFrame();						   //GUI aktualisieren
           break;
-     
-        
+      
+      case "Undo: Clear all":    	
+    	  matrix=undo.undoTempToMatrix();
+    	  EbeneUpdate();    	  
+          break;
+      
+      case "bottom":
+    	  v.zeigUnten(matrix);
+    	  
+    	  view.setText("Perspective: bottom");
+    	  bottom.setBackground(Color.green);
+    	  top.setBackground(Color.WHITE);
+    	  front.setBackground(Color.WHITE);
+    	  back.setBackground(Color.WHITE);
+    	  left.setBackground(Color.WHITE);
+    	  right.setBackground(Color.WHITE);
+    	  break;
+    	  
+      case "top":
+    	  v.zeigOben(matrix);
+    	  
+    	  view.setText("Perspective: top");
+    	  top.setBackground(Color.green);
+    	  bottom.setBackground(Color.WHITE);
+    	  front.setBackground(Color.WHITE);
+    	  back.setBackground(Color.WHITE);
+    	  left.setBackground(Color.WHITE);
+    	  right.setBackground(Color.WHITE);
+    	  break;
+    	  
+      case "front":
+    	  v.zeigVorne(matrix);
+    	  
+    	  view.setText("Perspective: front");
+    	  front.setBackground(Color.green);
+    	  top.setBackground(Color.WHITE);
+    	  bottom.setBackground(Color.WHITE);
+    	  back.setBackground(Color.WHITE);
+    	  left.setBackground(Color.WHITE);
+    	  right.setBackground(Color.WHITE);
+    	  break;
+    	
+      case "back":
+    	  v.zeigHinten(matrix);
+    	  
+    	  view.setText("Perspective: back");
+    	  back.setBackground(Color.green);
+    	  top.setBackground(Color.WHITE);
+    	  front.setBackground(Color.WHITE);
+    	  bottom.setBackground(Color.WHITE);
+    	  left.setBackground(Color.WHITE);
+    	  right.setBackground(Color.WHITE);
+    	  break;
+    	  
+      case "left":
+    	  v.zeigLinks(matrix);
+    	  
+    	  view.setText("Perspective: left");
+    	  left.setBackground(Color.green);
+    	  top.setBackground(Color.WHITE);
+    	  front.setBackground(Color.WHITE);
+    	  back.setBackground(Color.WHITE);
+    	  bottom.setBackground(Color.WHITE);
+    	  right.setBackground(Color.WHITE);
+    	  break; 
+    	  
+      case "right":
+    	  v.zeigRechts(matrix);
+    	  
+    	  view.setText("Perspective: right");
+    	  right.setBackground(Color.green);
+    	  top.setBackground(Color.WHITE);
+    	  front.setBackground(Color.WHITE);
+    	  back.setBackground(Color.WHITE);
+    	  left.setBackground(Color.WHITE);
+    	  bottom.setBackground(Color.WHITE);
+    	  break;
+    	  
+          
       default:
           break;
     }
       
   
-    ButtonState(geklickt[zahl], zahl);  //alle LEDs aktualisieren
+  MatrixZuweisen(geklickt[zahl], zahl);  //alle LEDs aktualisieren
   }
 
-void SaveAndDeselectButtons(int index) {	
-	for (int i = 0; i <= 511; i++) {               
-        matrixArray[i][index+1] = matrix[i];    	// speichere angeklicktes frame in hilfsArray ab               
-    }
+  void SaveAndDeselectButtons(int index) {	
+	  for (int i = 0; i <= 511; i++) {               
+          matrixArray[i][index+1] = matrix[i];    	// speichere angeklicktes frame in hilfsArray ab               
+      }
   
-    list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
-    list2.clearSelection();
-    list3.clearSelection();
-    MatrixAus();					//alles LEDs aus
-    EbeneUpdate();					//GUI aktualisieren
+      list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
+      list2.clearSelection();
+      list3.clearSelection();
+      MatrixAus();					//alles LEDs aus
+      EbeneUpdate();					//GUI aktualisieren
+  }
+
+  @SuppressWarnings("unchecked")
+  void SaveCurrentFrame() {
+	  frameNummer++;                       
+      for (int j = 0; j <= 511; j++) {
+        matrixArray[j][frameNummer] = matrix[j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
+       }            
+      model.addElement("Frame " + frameNummer);  //zur liste 3 ein neues item mit dem namen Frame + FrameNummer hinzufügen                   
+      MatrixAus();							   //Alle LEDs aus
+      EbeneUpdate();  
 }
 
-void SaveCurrentFrame() {
-	frameNummer++;                       
-    for (int j = 0; j <= 511; j++) {
-      matrixArray[j][frameNummer] = matrix[j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
-     }            
-    model.addElement("Frame " + frameNummer);  //zur liste 3 ein neues item mit dem namen Frame + FrameNummer hinzufügen                   
-    MatrixAus();							   //Alle LEDs aus
-    EbeneUpdate();  
-}
-
-  void ButtonState(boolean state, int button_nr) { // Updated Button State Array
+  void MatrixZuweisen(boolean state, int button_nr) { // Updated Button State Array
     int CurrentOffset = (CurrentEbene) * 64;
-
     matrix[button_nr + CurrentOffset] = state;
   }
 
@@ -792,7 +961,7 @@ void SaveCurrentFrame() {
   void EbeneUpdate() {        // Methode die die Buttons der sichtbaren ebene updated
     
     CurrentEbenetext.setText("Row = " + Integer.toString(CurrentEbene + 1));// Display der derzeitigen Ebene
-    int CurrentOffset = (CurrentEbene) * 64;// Button Offset
+    int CurrentOffset = (CurrentEbene) * 64;	// Button Offset
 
     for (int i = 0; i < 64; i++) {
       
@@ -808,6 +977,11 @@ void SaveCurrentFrame() {
     }
   }
   
+  public String gibName(String name){
+	  
+	  return name;
+  }
+  
   
   void MatrixAus(){
     for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
@@ -820,4 +994,6 @@ void SaveCurrentFrame() {
 	      matrix[matrixsetup] = true;    
 	    }
 	  }
+
+
 }

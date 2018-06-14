@@ -9,7 +9,8 @@ public class Undo {
     
     for (int i = 0; i <= 511; i++) {      //matrix in neue variable uebertragen
       matrixTemp[i]=matrix[i];
-    }   
+    } 
+    //System.out.println("matrix wurde zu temp übertragen");
     return matrix;
   }
   
@@ -18,7 +19,8 @@ public class Undo {
     
     for (int i = 0; i <= 511; i++) {      //matrix in neue variable uebertragen
       matrix[i]=matrixTemp[i];
-    }   
+    }  
+    //System.out.println("temp wurde zu matrix übertragen");
     return matrix;
   }
 
