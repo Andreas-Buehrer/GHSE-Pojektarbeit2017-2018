@@ -13,7 +13,7 @@ public class Steuerung {
   boolean ledfeld[][][] = new boolean[9][9][9];
   public void knopfGedrueckt(int buttons,boolean an_aus){
   String Status;
-  String test;
+  
   
   int LED,rest,rest2,z,y,x;
     do {
