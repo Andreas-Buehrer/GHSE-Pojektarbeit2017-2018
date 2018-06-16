@@ -24,7 +24,7 @@ public class SimpleDataSending {
 	
 
 
-	public static void connectToServer(String ipadresse,String port) {
+	public void connectToServer(String ipadresse,String port) {
 		try {
 			Socket clientSocket = new Socket("192.168.2.5", 23);
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); // Referenz um ausgehenden Datenverkehr zu kontrollieren
