@@ -8,49 +8,57 @@ import de.ghse.schnittstelle.SimpleDataSending;
 import de.ghse.steuerung.FileManager;
 
 public class TestDaten {
-	
+	static FileReaderLines op=new FileReaderLines();
 	int offset=0;
 	static int counter=0;
 	static boolean[] matrix=new boolean[512];
 	boolean[] matrixs=new boolean[512];
 	static boolean [][]welle=new boolean[12][512];
+	static boolean [][]frames=new boolean[512][512];
 	static TestDaten c=new TestDaten();
 	static SimpleDataSending netsend1 = new SimpleDataSending();
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
 		// TODO Auto-generated method stub
 		
-		Random r=new Random();
+		
 		String ib="0";
 		MusterTest mus=new MusterTest();
 		
 		
-		FileManager op=new FileManager();
-		matrix=op.openFileArray();
+		
+		frames=op.openFileArray();
+		
 		//mus.connecttocube();
-		for (int i = 0; i < 12; i++) {
-			System.out.println("Frame nr"+i+1);
-			welle[i]=op.openFileArray();
-		}
 		
 		netsend1.connectToServer("test",ib);
 		while(true) {
 			//mus.AnAus();
-		c.Einsbisacht();
-		c.Welle();
-		counter++;
-		System.out.println(counter);
+			
+		c.RunVideo(frames);
+		
 			
 		}
 		
 		
 	}
-	public void Welle() {
+	public void RunVideo(boolean frame[][]) throws UnknownHostException, IOException, InterruptedException {
+		int tes=1;
+		boolean video[][];
+		video=frame;
+		int frameCount=op.FrameCount();
+		for (int i = 0; i < frameCount; i++) {
+			Thread.sleep(100);
+		netsend1.Stringbuilder(video[i], tes);
+		}
+	}
+	public void Welle() throws InterruptedException {
 		int tes=1;
 		for (int i = 0; i < 20; i++) {
 			for (int j = 0; j < 3; j++) {
 				
 			try {
 				netsend1.Stringbuilder(welle[j], tes);
+				Thread.sleep(300);
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,12 +66,7 @@ public class TestDaten {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			try {
-				Thread.sleep(300);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
 			}
 			
 			
