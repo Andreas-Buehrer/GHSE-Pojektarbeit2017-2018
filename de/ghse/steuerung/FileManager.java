@@ -10,8 +10,7 @@ import javax.swing.JFileChooser;
 public class FileManager {
 	
   private String name;
-  String info2 = "420 x 512 Zahlen  20 Sekunden Laufzeit bei 24fps  Beschreibung: Dieses Programm stellt einen groesser werdenden Kreis dar";
-  String hexData = "", decData = "";
+  
   
 
   JFileChooser chooser = new JFileChooser();
