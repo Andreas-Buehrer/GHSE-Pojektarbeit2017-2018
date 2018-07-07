@@ -47,7 +47,7 @@ public class GUI extends JFrame implements ActionListener {
   private JLabel CurrentEbenetext,sliderLabel;
   private JButton output,ebeneup,ebenedown,reset,allOn,front,back,top,bottom,right,left;
   private boolean[] geklickt = new boolean[LEDS];
-  private boolean[] matrix = new boolean[512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor allem mit EbeneUpdate();
+  private boolean[][] matrix = new boolean[1][512];				//Anhand dieses Arrays wird das GUI "angemalt". Dies geschieht vor allem mit EbeneUpdate();
   public boolean[] matrixTemp = new boolean[512];	
   public boolean[] indexInVideo = new boolean[15];			//mehr als 15 frames wird ein user f�r ein video nicht brauchen
   public boolean[][] matrixArray = new boolean[512][15];    //max 15 Frames k�nnen gespeichert werden
@@ -363,11 +363,11 @@ final JList list3 = new JList(model3);
     rename3.addActionListener(this);
     delete3.addActionListener(this);
    
-    int framedisplaytime=0; 
+   
       slider.addChangeListener(new ChangeListener() {					//ActionListener f�r den Slider. Er wird ausgeloest sobald der Slider sich bewegt
           public void stateChanged(ChangeEvent e) {        	  
             sliderLabel.setText("Time: " + slider.getValue() + " ms");	//Das label aktualisieren
-            framedisplaytime=slider.getValue();
+            
           }
         });
        
@@ -445,7 +445,7 @@ final JList list3 = new JList(model3);
                 	list3.clearSelection();								  //und macht, dass das item in der liste nichtmehr blau markiert ist
                 
                 	for (int i = 0; i <= 511; i++) {               
-                          matrix[i] = matrixArray[i][index+1];                              
+                          matrix[0][i] = matrixArray[i][index+1];                              
                 	}
                 	EbeneUpdate();    							 		  //GUI aktualisieren                                                    
                 	}
@@ -463,7 +463,7 @@ final JList list3 = new JList(model3);
                 	list3.clearSelection();							//und macht, dass das item in der liste nichtmehr blau markiert ist
                   
                 	for (int i = 0; i <= 511; i++) {               
-                		matrix[i] = matrixArray[i][index+1];        //Datenaustausch weil mit EbeneUpdate() das matrix[] Array angesprochen wird und nicht das Hilfsarray, in dem jedes frame gespeichert ist.                 
+                		matrix[0][i] = matrixArray[i][index+1];        //Datenaustausch weil mit EbeneUpdate() das matrix[] Array angesprochen wird und nicht das Hilfsarray, in dem jedes frame gespeichert ist.                 
                 	}
                 	EbeneUpdate();									//GUI aktualisieren                 
                 	}               
@@ -483,28 +483,20 @@ final JList list3 = new JList(model3);
                 }
             }
         });       
-      final int framedisplaytimefin=framedisplaytime;
+      
       timer = new javax.swing.Timer( 100, new ActionListener() {   	 
     	  public void actionPerformed( ActionEvent e ) {
     		  frameZaehler++;
     		  if (frameZaehler<=indexZaehler) {
     			  
     			  for (int led = 0; led<= 511; led++) {                 			  	//frame darstellen    				  
-        			  matrix[led] = matrixArray[led][indexSammler[frameZaehler]];   			  
+        			  matrix[0][led] = matrixArray[led][indexSammler[frameZaehler]];   			  
         		  }
-    			  try {
-					netsend.Stringbuilder(matrix,1); // Video Senden
-				} catch (UnknownHostException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+    			  
         		  EbeneUpdate();
     		  }else {
-    			  //timer.stop();
-    			  timer.restart();
+    			  timer.stop();
+    			  timer=null;
     			  list3.clearSelection();
     		  }
     		  
@@ -756,19 +748,14 @@ final JList list3 = new JList(model3);
   switch (quelle) {							//in string quelle steht woher der klick kam
     
       case "Clear all":
-        undo.undoMatrixToTemp(matrix);
+        undo.undoMatrixToTemp(matrix[0]);
         MatrixAus();
         EbeneUpdate();
         break;
         
       case "Send":
         time.StartTimer();
-        try {
-          netsend.Stringbuilder(matrix,1);
-        } catch (IOException error) {
-         
-          error.printStackTrace();			//nichts tun
-        }
+        netsend.stringbuilder(matrix[0],1);
         System.out.println(" Gesamte Zeit"+time.StoppTimer()+"ms");
         break;
         
@@ -797,13 +784,14 @@ final JList list3 = new JList(model3);
         break;
       
       case "Save as . . .":						//JMenu    	  
-    	getdatafile.gibNamen(name);  
-        getdatafile.SaveArraytoFile(matrix);
+    	//getdatafile.gibNamen(name);  
+        getdatafile.SaveArraytoFile(matrix,name,1);
         break;              
       
       case "Save as...":						//JPopupMenu
-    	getdatafile.gibNamen(name);  
-        getdatafile.SaveArraytoFile(matrix);
+    	//getdatafile.gibNamen(name);  
+        
+    	getdatafile.SaveArraytoFile(matrix,name,1);
         break;
       
       case "Connect":
@@ -813,7 +801,7 @@ final JList list3 = new JList(model3);
         	  ip = JOptionPane.showInputDialog(connectFrame, "Enter IP-Address");    
         	  JFrame connectFrame2 = new JFrame();  	   
         	  port = JOptionPane.showInputDialog(connectFrame2, "Enter port");         	  
-        	  netsend.connectToServer(ip, port);		//Methodenaufruf um zu connecten
+        	  netsend.connectToServer(ip, Integer.parseInt(port));		//Methodenaufruf um zu connecten
         	  JOptionPane.showMessageDialog(null, "Successfully connected !", "Popup Message", JOptionPane.INFORMATION_MESSAGE);
         	  
 			  
@@ -834,12 +822,12 @@ final JList list3 = new JList(model3);
           break;
       
       case "Undo: Clear all":    	
-    	  matrix=undo.undoTempToMatrix();
+    	  matrix[0]=undo.undoTempToMatrix();
     	  EbeneUpdate();    	  
           break;
       
       case "bottom":
-    	  v.zeigUnten(matrix);
+    	  v.zeigUnten(matrix[0]);
     	     	 
     	  bottom.setBackground(Color.green);
     	  top.setBackground(Color.WHITE);
@@ -850,7 +838,7 @@ final JList list3 = new JList(model3);
     	  break;
     	  
       case "top":
-    	  v.zeigOben(matrix);
+    	  v.zeigOben(matrix[0]);
     	     	
     	  top.setBackground(Color.green);
     	  bottom.setBackground(Color.WHITE);
@@ -861,7 +849,7 @@ final JList list3 = new JList(model3);
     	  break;
     	  
       case "front":
-    	  v.zeigVorne(matrix);
+    	  v.zeigVorne(matrix[0]);
     	  
     	  front.setBackground(Color.green);
     	  top.setBackground(Color.WHITE);
@@ -872,7 +860,7 @@ final JList list3 = new JList(model3);
     	  break;
     	
       case "back":
-    	  v.zeigHinten(matrix);
+    	  v.zeigHinten(matrix[0]);
     	  
     	  back.setBackground(Color.green);
     	  top.setBackground(Color.WHITE);
@@ -883,7 +871,7 @@ final JList list3 = new JList(model3);
     	  break;
     	  
       case "left":
-    	  v.zeigLinks(matrix);
+    	  v.zeigLinks(matrix[0]);
     	  
     	  left.setBackground(Color.green);
     	  top.setBackground(Color.WHITE);
@@ -894,7 +882,7 @@ final JList list3 = new JList(model3);
     	  break; 
     	  
       case "right":
-    	  v.zeigRechts(matrix);
+    	  v.zeigRechts(matrix[0]);
     	  
     	  right.setBackground(Color.green);
     	  top.setBackground(Color.WHITE);
@@ -917,7 +905,7 @@ final JList list3 = new JList(model3);
   void SaveAndDeselectButtons(int index) {	
 	  
 	  for (int i = 0; i <= 511; i++) {               
-          matrixArray[i][index+1] = matrix[i];    	// speichere angeklicktes frame in hilfsArray ab               
+          matrixArray[i][index+1] = matrix[0][i];    	// speichere angeklicktes frame in hilfsArray ab               
       }
   
       list.clearSelection();			//macht, dass das item in der liste nichtmehr blau markiert ist			
@@ -931,7 +919,7 @@ final JList list3 = new JList(model3);
   void SaveCurrentFrame() {
 	  frameNummer++;                       
       for (int j = 0; j <= 511; j++) {
-        matrixArray[j][frameNummer] = matrix[j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
+        matrixArray[j][frameNummer] = matrix[0][j];  //die jetzige matrix wird in ein weiteres Array gespeichert und kann immer wieder abgerufen werden. 
        }            
       model.addElement("Frame " + frameNummer);  //zur liste 3 ein neues item mit dem namen Frame + FrameNummer hinzuf�gen                   
       MatrixAus();							   //Alle LEDs aus
@@ -940,7 +928,7 @@ final JList list3 = new JList(model3);
 
   void MatrixZuweisen(boolean state, int button_nr) { // Updated Button State Array
     int CurrentOffset = (CurrentEbene) * 64;
-    matrix[button_nr + CurrentOffset] = state;
+    matrix[0][button_nr + CurrentOffset] = state;
   }
 
   
@@ -951,7 +939,7 @@ final JList list3 = new JList(model3);
 
     for (int i = 0; i < 64; i++) {
       
-      if (matrix[i + CurrentOffset]) // Findet den Status der Knoepfe heraus
+      if (matrix[0][i + CurrentOffset]) // Findet den Status der Knoepfe heraus
       {
         geklickt[i] = true;
                       
@@ -971,13 +959,13 @@ final JList list3 = new JList(model3);
   
   void MatrixAus(){
     for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
-      matrix[matrixsetup] = false;    
+      matrix[0][matrixsetup] = false;    
     }
   }
 
   void MatrixAn(){
 	    for (int matrixsetup = 0; matrixsetup <512; matrixsetup++) {// Setting up the the save array
-	      matrix[matrixsetup] = true;    
+	      matrix[0][matrixsetup] = true;    
 	    }
 	  }
 
